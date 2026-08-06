@@ -1,5 +1,13 @@
+const dns = require("dns");
+
+dns.setServers(["8.8.8.8", "8.8.4.4"]);
+
 const dotenv = require("dotenv");
-dotenv.config();
+const path = require("path");
+
+dotenv.config({
+    path: path.join(__dirname, "../.env")
+});
 
 const app = require("./app");
 const connectDB = require("./config/db");
