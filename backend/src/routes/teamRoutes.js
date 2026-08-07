@@ -38,6 +38,30 @@ router.get(
   getTeamById
 );
 
+router.put(
+  "/:id",
+  protect,
+  updateTeam
+);
+
+router.post(
+  "/:id/invite",
+  protect,
+  inviteMember
+);
+
+router.delete(
+  "/:id/leave",
+  protect,
+  leaveTeam
+);
+
+router.delete(
+  "/:id/member/:userId",
+  protect,
+  removeMember
+);
+
 router.delete(
   "/:id",
   protect,

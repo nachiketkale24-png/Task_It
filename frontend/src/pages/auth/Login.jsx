@@ -67,7 +67,7 @@ function Login() {
       // Save User (optional)
       localStorage.setItem(
         "user",
-        JSON.stringify(response.data.user)
+        JSON.stringify(response.data.data)
       );
 
       alert(response.data.message || "Login Successful!");
