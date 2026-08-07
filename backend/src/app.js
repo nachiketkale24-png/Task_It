@@ -4,11 +4,11 @@ const helmet = require("helmet");
 const morgan = require("morgan");
 
 const authRoutes = require("./routes/authRoutes");
+const teamRoutes = require("./routes/teamRoutes");
 
 const app = express();
 
-
-
+// Middlewares
 app.use(
     cors({
         origin: "http://localhost:5173",
@@ -16,9 +16,7 @@ app.use(
     })
 );
 
-// Middlewares
 app.use(express.json());
-app.use(cors());
 app.use(helmet());
 app.use(morgan("dev"));
 
@@ -26,11 +24,12 @@ app.use(morgan("dev"));
 app.get("/", (req, res) => {
     res.json({
         success: true,
-        message: "Task_It Backend Running!"
+        message: "Task_It Backend Running!",
     });
 });
 
 // API Routes
 app.use("/api/auth", authRoutes);
+app.use("/api/team", teamRoutes);
 
 module.exports = app;
