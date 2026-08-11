@@ -1,5 +1,5 @@
 import { Routes, Route, Navigate } from "react-router-dom";
-
+import TaskList from "../pages/tasks/TaskList";
 import Login from "../pages/auth/Login";
 import Register from "../pages/auth/Register";
 import Dashboard from "../pages/dashboard/Dashboard";
@@ -57,6 +57,15 @@ function AppRoutes() {
                 }
             />
 
+            <Route
+                path="/tasks"
+                element={
+                    <AppShell activePage="tasks">
+                        <TaskList />
+                    </AppShell>
+                }
+            />
+    
             <Route path="*" element={<Navigate to="/" />} />
 
         </Routes>

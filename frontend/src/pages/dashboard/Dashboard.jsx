@@ -3,6 +3,8 @@ import { useState } from "react";
 import Sidebar from "../../components/layout/Sidebar";
 import DashboardHome from "../../components/dashboard/DashboardHome";
 import TeamList from "../team/TeamList";
+import TaskList from "../tasks/TaskList";
+
 
 export default function Dashboard() {
     const [activePage, setActivePage] = useState("dashboard");
@@ -14,6 +16,9 @@ export default function Dashboard() {
 
             case "teams":
                 return <TeamList />;
+
+            case "tasks":
+                return <TaskList />;
 
             default:
                 return <DashboardHome />;
