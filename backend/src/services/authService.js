@@ -52,7 +52,12 @@ const loginUser = async (userData) => {
     };
 };
 
+const getAllUsers = async () => {
+    return await User.find({}, "fullName email role profileImage");
+};
+
 module.exports = {
     registerUser,
     loginUser,
+    getAllUsers,
 };

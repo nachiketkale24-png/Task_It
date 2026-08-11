@@ -5,6 +5,7 @@ const validate = require("../middleware/validationMiddleware");
 const {
     registerUser,
     loginUser,
+    getUsers,
 } = require("../controllers/authController");
 
 const {
@@ -25,7 +26,7 @@ router.post(
     validate,
     loginUser
 );
-
+router.get("/users", protect, getUsers);
 module.exports = router;
 
 router.get("/profile", protect, (req, res) => {
