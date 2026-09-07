@@ -32,6 +32,6 @@ app.get("/", (req, res) => {
 // API Routes
 app.use("/api/auth", authRoutes);
 app.use("/api/team", teamRoutes);
-app.use("/api/project", projectRoutes);
+app.use("/api/projects", projectRoutes);
 
 module.exports = app;

@@ -1,37 +1,5 @@
-import { useState } from "react";
-
-import Sidebar from "../../components/layout/Sidebar";
 import DashboardHome from "../../components/dashboard/DashboardHome";
-import TeamList from "../team/TeamList";
 
 export default function Dashboard() {
-    const [activePage, setActivePage] = useState("dashboard");
-
-    const renderPage = () => {
-        switch (activePage) {
-            case "dashboard":
-                return <DashboardHome />;
-
-            case "teams":
-                return <TeamList />;
-
-            default:
-                return <DashboardHome />;
-        }
-    };
-
-    return (
-        <div className="flex h-screen bg-gray-50">
-
-            <Sidebar
-                activePage={activePage}
-                setActivePage={setActivePage}
-            />
-
-            <main className="flex-1 overflow-y-auto">
-                {renderPage()}
-            </main>
-
-        </div>
-    );
+  return <DashboardHome />;
 }

@@ -6,71 +6,88 @@ import Dashboard from "../pages/dashboard/Dashboard";
 
 import AppShell from "../components/layout/AppShell";
 
-import TeamList from "../pages/teams/TeamList";
-import CreateTeam from "../pages/teams/CreateTeam";
-import TeamDetails from "../pages/teams/TeamDetails";
-import EditTeam from "../pages/teams/EditTeam";
+import TeamList from "../pages/team/TeamList";
+import CreateTeam from "../pages/team/CreateTeam"; 
+import TeamDetails from "../pages/team/TeamDetails"; 
+import EditTeam from "../pages/team/EditTeam";
 
 import ProjectsPage from "../pages/projects/ProjectsPage";
+import ProjectDetails from "../pages/projects/ProjectDetails";
 
 function AppRoutes() {
   return (
     <Routes>
-      <Route path="/" element={<Login />} />
+    <Route path="/" element={<Login />} />
 
-      <Route path="/login" element={<Login />} />
+    <Route path="/login" element={<Login />} />
 
-      <Route path="/register" element={<Register />} />
+    <Route path="/register" element={<Register />} />
 
-      <Route path="/dashboard" element={<Dashboard />} />
+    <Route
+        path="/dashboard"
+        element={
+        <AppShell activePage="dashboard">
+            <Dashboard />
+        </AppShell>
+        }
+    />
 
-      <Route
+    <Route
         path="/teams"
         element={
-          <AppShell activePage="teams">
+        <AppShell activePage="teams">
             <TeamList />
-          </AppShell>
+        </AppShell>
         }
-      />
+    />
 
-      <Route
+    <Route
         path="/teams/new"
         element={
-          <AppShell activePage="teams">
+        <AppShell activePage="teams">
             <CreateTeam />
-          </AppShell>
+        </AppShell>
         }
-      />
+    />
 
-      <Route
+    <Route
         path="/teams/:id"
         element={
-          <AppShell activePage="teams">
+        <AppShell activePage="teams">
             <TeamDetails />
-          </AppShell>
+        </AppShell>
         }
-      />
+    />
 
-      <Route
+    <Route
         path="/teams/:id/edit"
         element={
-          <AppShell activePage="teams">
+        <AppShell activePage="teams">
             <EditTeam />
-          </AppShell>
+        </AppShell>
         }
-      />
+    />
 
-      <Route
+    <Route
         path="/projects"
         element={
-          <AppShell activePage="projects">
+        <AppShell activePage="projects">
             <ProjectsPage />
-          </AppShell>
+        </AppShell>
         }
-      />
+    />
 
-      <Route path="*" element={<Navigate to="/" />} />
-    </Routes>
+    <Route
+        path="/projects/:id"
+        element={
+        <AppShell activePage="projects">
+            <ProjectDetails />
+        </AppShell>
+        }
+    />
+
+    <Route path="*" element={<Navigate to="/" />} />
+</Routes>
   );
 }
 
