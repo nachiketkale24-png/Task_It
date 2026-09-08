@@ -19,6 +19,11 @@ export default function AppShell({
             return;
         }
 
+        if (page === "projects") {
+            navigate("/projects");
+            return;
+        }
+
         navigate("/dashboard");
     };
 
