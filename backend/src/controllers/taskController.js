@@ -1,8 +1,20 @@
 const taskService = require('../services/taskService');
+const { createNotification } = require('../services/notificationService');
 
 const createTask = async (req, res) => {
   try {
     const task = await taskService.createTask(req.body, req.user._id);
+
+    // Notify assignee if different from creator
+    if (task.assignee && task.assignee.toString() !== req.user._id.toString()) {
+      await createNotification(
+        task.assignee,
+        'task_assigned',
+        `You have been assigned a new task: "${task.title}"`,
+        task._id
+      );
+    }
+
     res.status(201).json({
       success: true,
       message: 'Task created successfully',
@@ -43,10 +55,37 @@ const getTask = async (req, res) => {
 
 const updateTask = async (req, res) => {
   try {
+    const previousTask = await taskService.getTaskById(req.params.id, req.user._id).catch(() => null);
     const task = await taskService.updateTask(req.params.id, req.user._id, req.body);
     if (!task) {
       return res.status(404).json({ success: false, message: 'Task not found' });
     }
+
+    // Notify new assignee when assignee changes
+    const newAssigneeId = req.body.assignee;
+    const oldAssigneeId = previousTask?.assignee?._id?.toString();
+    if (newAssigneeId && newAssigneeId !== req.user._id.toString() && newAssigneeId !== oldAssigneeId) {
+      await createNotification(
+        newAssigneeId,
+        'task_assigned',
+        `You have been assigned a task: "${task.title}"`,
+        task._id
+      );
+    }
+
+    // Notify creator when task is completed (if they're not the one updating)
+    if (req.body.status === 'Completed' && previousTask?.status !== 'Completed') {
+      const creatorId = task.createdBy?._id?.toString() || task.createdBy?.toString();
+      if (creatorId && creatorId !== req.user._id.toString()) {
+        await createNotification(
+          creatorId,
+          'task_completed',
+          `Task "${task.title}" has been marked as Completed.`,
+          task._id
+        );
+      }
+    }
+
     res.json({
       success: true,
       message: 'Task updated successfully',
