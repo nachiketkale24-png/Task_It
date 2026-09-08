@@ -8,6 +8,11 @@ const teamRoutes = require("./routes/teamRoutes");
 const projectRoutes = require("./routes/projectRoutes");
 const taskRoutes = require("./routes/taskRoutes");
 const dashboardRoutes = require("./routes/dashboardRoutes");
+const reportRoutes = require("./routes/reportRoutes");
+const notificationRoutes = require("./routes/notificationRoutes");
+const documentRoutes = require("./routes/documentRoutes");
+const userRoutes = require("./routes/userRoutes");
+const settingsRoutes = require("./routes/settingsRoutes");
 
 const app = express();
 
@@ -35,7 +40,13 @@ app.get("/", (req, res) => {
 app.use("/api/auth", authRoutes);
 app.use("/api/team", teamRoutes);
 app.use("/api/project", projectRoutes);
+app.use("/api/projects", projectRoutes);
 app.use("/api/tasks", taskRoutes);
 app.use("/api/dashboard", dashboardRoutes);
+app.use("/api/reports", reportRoutes);
+app.use("/api/notifications", notificationRoutes);
+app.use("/api/documents", documentRoutes);
+app.use("/api/users", userRoutes);
+app.use("/api/settings", settingsRoutes);
 
 module.exports = app;

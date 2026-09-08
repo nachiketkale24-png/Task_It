@@ -27,9 +27,25 @@ const userSchema = new mongoose.Schema(
         "Super Admin",
         "Project Manager",
         "Team Lead",
+        "Developer",
+        "Frontend Developer",
+        "Backend Developer",
+        "ML Engineer",
         "Intern",
       ],
       default: "Intern",
+    },
+
+    department: {
+      type: String,
+      trim: true,
+      default: "",
+    },
+
+    phone: {
+      type: String,
+      trim: true,
+      default: "",
     },
 
     profileImage: {
@@ -41,7 +57,15 @@ const userSchema = new mongoose.Schema(
       type: Boolean,
       default: true,
     },
+
+    notificationPrefs: {
+      taskAssigned:     { type: Boolean, default: true },
+      taskCompleted:    { type: Boolean, default: true },
+      deadlineReminder: { type: Boolean, default: true },
+      projectUpdates:   { type: Boolean, default: true },
+    },
   },
+
   {
     timestamps: true,
   }
