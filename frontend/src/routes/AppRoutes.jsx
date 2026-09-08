@@ -17,6 +17,7 @@ import Reports from "../pages/reports/Reports";
 import DocumentsPage from "../pages/documents/DocumentsPage";
 import UsersPage from "../pages/users/UsersPage";
 import SettingsPage from "../pages/settings/SettingsPage";
+import GitHubPage from "../pages/github/GitHubPage";
 
 function AppRoutes() {
     return (
@@ -53,6 +54,9 @@ function AppRoutes() {
 
             {/* Settings */}
             <Route path="/settings" element={<AppShell activePage="settings"><SettingsPage /></AppShell>} />
+
+            {/* GitHub */}
+            <Route path="/github" element={<AppShell activePage="github"><GitHubPage /></AppShell>} />
 
             {/* Fallback */}
             <Route path="*" element={<Navigate to="/" />} />

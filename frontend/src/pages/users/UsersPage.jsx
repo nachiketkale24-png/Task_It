@@ -79,9 +79,9 @@ function UserModal({ user, onClose, onSave }) {
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
-            <div className="w-full max-w-lg rounded-2xl bg-white shadow-2xl">
-                <div className="flex items-center justify-between border-b px-6 py-4">
-                    <h2 className="text-lg font-bold text-gray-900">{isEdit ? "Edit User" : "Create User"}</h2>
+            <div className="w-full max-w-lg bg-[var(--surface-card)] dark:bg-zinc-900 border border-[var(--border-color)] dark:border-zinc-800 rounded-xl shadow-sm text-[var(--title-color)] dark:text-zinc-100">
+                <div className="flex items-center justify-between border-b border-[var(--border-color)] dark:border-zinc-800 px-6 py-4">
+                    <h2 className="text-lg font-bold text-[var(--title-color)] dark:text-zinc-50">{isEdit ? "Edit User" : "Create User"}</h2>
                     <button onClick={onClose} className="rounded-xl p-2 hover:bg-gray-100 transition"><FiX size={18} /></button>
                 </div>
                 <form onSubmit={handleSubmit} className="p-6 space-y-4">
@@ -134,12 +134,12 @@ function RoleModal({ user, onClose, onSave }) {
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
-            <div className="w-full max-w-sm rounded-2xl bg-white shadow-2xl p-6">
+            <div className="w-full max-w-sm bg-[var(--surface-card)] dark:bg-zinc-900 border border-[var(--border-color)] dark:border-zinc-800 rounded-xl shadow-sm text-[var(--title-color)] dark:text-zinc-100 p-6">
                 <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-xl bg-violet-100">
                     <FiShield size={18} className="text-violet-600" />
                 </div>
-                <h3 className="mb-1 text-lg font-bold text-gray-900">Assign Role</h3>
-                <p className="mb-4 text-sm text-gray-500">Changing role for <span className="font-semibold text-gray-800">{user.fullName}</span></p>
+                <h3 className="mb-1 text-lg font-bold text-[var(--title-color)] dark:text-zinc-50">Assign Role</h3>
+                <p className="mb-4 text-sm text-[var(--subtitle-color)] dark:text-zinc-400">Changing role for <span className="font-semibold text-[var(--title-color)] dark:text-zinc-100">{user.fullName}</span></p>
                 <select value={role} onChange={e => setRole(e.target.value)}
                     className="w-full rounded-xl border border-gray-200 px-3 py-2 text-sm outline-none focus:border-violet-400 mb-4">
                     {ROLES.map(r => <option key={r} value={r}>{r}</option>)}
@@ -160,12 +160,12 @@ function RoleModal({ user, onClose, onSave }) {
 function DeleteConfirm({ user, onConfirm, onCancel, loading }) {
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
-            <div className="w-full max-w-sm rounded-2xl bg-white p-6 shadow-2xl">
+            <div className="w-full max-w-sm bg-[var(--surface-card)] dark:bg-zinc-900 border border-[var(--border-color)] dark:border-zinc-800 rounded-xl shadow-sm text-[var(--title-color)] dark:text-zinc-100 p-6">
                 <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-red-50">
                     <FiTrash2 size={22} className="text-red-500" />
                 </div>
-                <h3 className="mb-1 text-lg font-bold">Delete User</h3>
-                <p className="text-sm text-gray-500">Delete <span className="font-semibold text-gray-800">"{user.fullName}"</span>? This cannot be undone.</p>
+                <h3 className="mb-1 text-lg font-bold text-[var(--title-color)] dark:text-zinc-50">Delete User</h3>
+                <p className="text-sm text-[var(--subtitle-color)] dark:text-zinc-400">Delete <span className="font-semibold text-[var(--title-color)] dark:text-zinc-100">"{user.fullName}"</span>? This cannot be undone.</p>
                 <div className="mt-5 flex gap-2">
                     <button onClick={onCancel} className="flex-1 rounded-xl border border-gray-200 py-2 text-sm font-medium text-gray-600 hover:bg-gray-50 transition">Cancel</button>
                     <button onClick={onConfirm} disabled={loading}
@@ -231,14 +231,14 @@ export default function UsersPage() {
     });
 
     return (
-        <div className="min-h-full bg-gray-50 p-8">
+        <div className="min-h-full bg-[var(--main-bg)] dark:bg-zinc-950 p-8 transition-colors duration-200">
             <div className="mx-auto max-w-7xl">
 
                 {/* Header */}
                 <div className="mb-6 flex flex-wrap items-start justify-between gap-4">
                     <div>
-                        <h1 className="text-3xl font-bold text-gray-900">User Management</h1>
-                        <p className="mt-1 text-gray-500">Manage team members, roles, and access.</p>
+                        <h1 className="text-3xl font-bold text-[var(--title-color)] dark:text-zinc-50">User Management</h1>
+                        <p className="mt-1 text-[var(--subtitle-color)] dark:text-zinc-400">Manage team members, roles, and access.</p>
                     </div>
                     <button
                         id="create-user-btn"
@@ -258,18 +258,18 @@ export default function UsersPage() {
                             placeholder="Search users..."
                             value={search}
                             onChange={e => setSearch(e.target.value)}
-                            className="w-56 rounded-xl border border-gray-200 bg-white py-2 pl-9 pr-4 text-sm outline-none focus:border-violet-400 focus:ring-1 focus:ring-violet-200"
+                            className="w-56 rounded-xl border border-[var(--border-color)] dark:border-zinc-800 bg-[var(--surface-card)] dark:bg-zinc-900 py-2 pl-9 pr-4 text-sm text-[var(--title-color)] dark:text-zinc-100 outline-none focus:border-violet-400 focus:ring-1 focus:ring-violet-200"
                         />
                     </div>
                     <select
                         value={roleFilter}
                         onChange={e => setRoleFilter(e.target.value)}
-                        className="rounded-xl border border-gray-200 bg-white px-3 py-2 text-sm outline-none focus:border-violet-400"
+                        className="rounded-xl border border-[var(--border-color)] dark:border-zinc-800 bg-[var(--surface-card)] dark:bg-zinc-900 px-3 py-2 text-sm text-[var(--title-color)] dark:text-zinc-100 outline-none focus:border-violet-400"
                     >
                         <option value="All">All Roles</option>
                         {ROLES.map(r => <option key={r} value={r}>{r}</option>)}
                     </select>
-                    <span className="text-sm text-gray-400">{filtered.length} user{filtered.length !== 1 ? "s" : ""}</span>
+                    <span className="text-sm text-[var(--subtitle-color)] dark:text-zinc-400">{filtered.length} user{filtered.length !== 1 ? "s" : ""}</span>
                 </div>
 
                 {/* Table */}
@@ -278,10 +278,10 @@ export default function UsersPage() {
                         <div className="h-10 w-10 animate-spin rounded-full border-4 border-gray-200 border-t-violet-600" />
                     </div>
                 ) : (
-                    <div className="overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm">
+                    <div className="bg-[var(--surface-card)] dark:bg-zinc-900 border border-[var(--border-color)] dark:border-zinc-800 rounded-xl shadow-sm text-[var(--title-color)] dark:text-zinc-100 overflow-hidden">
                         <table className="w-full text-sm">
                             <thead>
-                                <tr className="border-b bg-gray-50 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">
+                                <tr className="border-b border-[var(--border-color)] dark:border-zinc-800 bg-gray-50 dark:bg-zinc-900/50 text-left text-xs font-semibold uppercase tracking-wider text-[var(--subtitle-color)] dark:text-zinc-400">
                                     <th className="px-5 py-3.5">User</th>
                                     <th className="px-5 py-3.5">Role</th>
                                     <th className="px-5 py-3.5">Department</th>
@@ -299,7 +299,7 @@ export default function UsersPage() {
                                         </td>
                                     </tr>
                                 ) : filtered.map(user => (
-                                    <tr key={user._id} className="border-b border-gray-50 hover:bg-gray-50/70 transition">
+                                    <tr key={user._id} className="border-b border-[var(--border-color)] dark:border-zinc-800 hover:bg-gray-50/70 dark:hover:bg-zinc-800/50 transition">
                                         {/* User */}
                                         <td className="px-5 py-4">
                                             <div className="flex items-center gap-3">
@@ -308,8 +308,8 @@ export default function UsersPage() {
                                                     {getInitials(user.fullName)}
                                                 </div>
                                                 <div>
-                                                    <p className="font-medium text-gray-900">{user.fullName}</p>
-                                                    <p className="text-xs text-gray-400">{user.email}</p>
+                                                    <p className="font-medium text-[var(--title-color)] dark:text-zinc-50">{user.fullName}</p>
+                                                    <p className="text-xs text-[var(--subtitle-color)] dark:text-zinc-400">{user.email}</p>
                                                 </div>
                                             </div>
                                         </td>
