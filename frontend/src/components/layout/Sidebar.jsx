@@ -9,6 +9,7 @@ import {
     FiUserCheck,
     FiLogOut,
     FiSettings,
+    FiGithub,
 } from "react-icons/fi";
 
 const menu = [
@@ -19,6 +20,7 @@ const menu = [
     { id: "documents",  label: "Documents",  icon: FiFile },
     { id: "reports",    label: "Reports",    icon: FiBarChart2 },
     { id: "users",      label: "Users",      icon: FiUserCheck },
+    { id: "github",     label: "GitHub",     icon: FiGithub },
     { id: "settings",   label: "Settings",   icon: FiSettings },
 ];
 
@@ -32,16 +34,16 @@ export default function Sidebar({ activePage, setActivePage }) {
     };
 
     return (
-        <aside className="flex w-64 flex-shrink-0 flex-col border-r bg-white">
+        <aside className="flex w-64 flex-shrink-0 flex-col border-r border-[var(--border-color)] dark:border-zinc-800 bg-[var(--sidebar-bg)] dark:bg-zinc-950 transition-colors duration-200">
             {/* Logo */}
-            <div className="border-b p-6">
+            <div className="border-b border-[var(--border-color)] dark:border-zinc-800 p-6">
                 <div className="flex items-center gap-2">
                     <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-gradient-to-br from-violet-600 to-indigo-600">
                         <span className="text-sm font-bold text-white">T</span>
                     </div>
                     <div>
-                        <h1 className="text-lg font-bold text-gray-900">Task It</h1>
-                        <p className="text-xs text-gray-400">Team Workspace</p>
+                        <h1 className="text-lg font-bold text-[var(--title-color)] dark:text-zinc-50">Task It</h1>
+                        <p className="text-xs text-[var(--subtitle-color)] dark:text-zinc-400">Team Workspace</p>
                     </div>
                 </div>
             </div>
@@ -58,8 +60,8 @@ export default function Sidebar({ activePage, setActivePage }) {
                             onClick={() => setActivePage(item.id)}
                             className={`mb-1 flex w-full items-center gap-3 rounded-xl px-4 py-2.5 text-sm font-medium transition
                                 ${isActive
-                                    ? "bg-violet-600 text-white shadow-sm"
-                                    : "text-gray-600 hover:bg-gray-100 hover:text-gray-900"
+                                    ? "bg-violet-600 text-white shadow-sm dark:bg-zinc-800 dark:text-white"
+                                    : "text-[var(--nav-inactive)] dark:text-zinc-400 hover:bg-gray-100 dark:hover:bg-zinc-900 hover:text-[var(--title-color)] dark:hover:text-zinc-50"
                                 }`}
                         >
                             <Icon size={17} />
@@ -70,10 +72,10 @@ export default function Sidebar({ activePage, setActivePage }) {
             </nav>
 
             {/* Logout */}
-            <div className="border-t p-3">
+            <div className="border-t border-[var(--border-color)] dark:border-zinc-800 p-3">
                 <button
                     onClick={handleLogout}
-                    className="flex w-full items-center gap-3 rounded-xl px-4 py-2.5 text-sm font-medium text-gray-500 hover:bg-red-50 hover:text-red-500 transition"
+                    className="flex w-full items-center gap-3 rounded-xl px-4 py-2.5 text-sm font-medium text-[var(--nav-inactive)] dark:text-zinc-400 hover:bg-red-50 dark:hover:bg-zinc-900 hover:text-red-500 dark:hover:text-red-400 transition"
                 >
                     <FiLogOut size={17} />
                     Logout

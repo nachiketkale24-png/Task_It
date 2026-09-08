@@ -17,6 +17,7 @@ export default function AppShell({
             reports: "/reports",
             documents: "/documents",
             users: "/users",
+            github: "/github",
             settings: "/settings",
         };
         navigate(routes[page] || "/dashboard");
@@ -31,7 +32,7 @@ export default function AppShell({
         : "U";
 
     return (
-        <div className="flex h-screen bg-gray-50">
+        <div className="flex h-screen bg-[var(--main-bg)] dark:bg-zinc-950 text-[var(--title-color)] dark:text-zinc-50 transition-colors duration-200">
             <Sidebar
                 activePage={activePage}
                 setActivePage={handlePageChange}
@@ -39,8 +40,8 @@ export default function AppShell({
 
             <div className="flex flex-1 flex-col overflow-hidden">
                 {/* Top Navbar */}
-                <header className="flex h-14 flex-shrink-0 items-center justify-between border-b bg-white px-6">
-                    <h2 className="text-sm font-semibold capitalize text-gray-600">
+                <header className="flex h-14 flex-shrink-0 items-center justify-between border-b border-[var(--border-color)] dark:border-zinc-800 bg-[var(--sidebar-bg)] dark:bg-zinc-950 px-6 transition-colors duration-200">
+                    <h2 className="text-sm font-semibold capitalize text-[var(--title-color)] dark:text-zinc-50">
                         {activePage.replace(/-/g, " ")}
                     </h2>
                     <div className="flex items-center gap-3">
@@ -50,12 +51,12 @@ export default function AppShell({
                             <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-violet-500 to-indigo-600 text-xs font-bold text-white">
                                 {initials}
                             </div>
-                            <span className="text-sm font-medium text-gray-700">{user?.fullName || "User"}</span>
+                            <span className="text-sm font-medium text-[var(--title-color)] dark:text-zinc-50">{user?.fullName || "User"}</span>
                         </div>
                     </div>
                 </header>
 
-                <main className="flex-1 overflow-y-auto">
+                <main className="flex-1 overflow-y-auto bg-[var(--main-bg)] dark:bg-zinc-950 transition-colors duration-200">
                     {children}
                 </main>
             </div>

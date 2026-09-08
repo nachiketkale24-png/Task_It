@@ -97,7 +97,7 @@ export default function NotificationBell() {
       <button
         id="notification-bell-btn"
         onClick={() => setOpen((o) => !o)}
-        className="relative flex h-9 w-9 items-center justify-center rounded-xl text-gray-500 hover:bg-gray-100 transition"
+        className="relative flex h-9 w-9 items-center justify-center rounded-xl text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 transition"
         aria-label="Notifications"
       >
         <FiBell size={20} />
@@ -110,12 +110,12 @@ export default function NotificationBell() {
 
       {/* Dropdown Panel */}
       {open && (
-        <div className="absolute right-0 top-11 z-50 w-96 rounded-2xl border border-gray-100 bg-white shadow-2xl">
+        <div className="absolute right-0 top-11 z-50 w-96 rounded-2xl border border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-900 shadow-2xl">
           {/* Header */}
-          <div className="flex items-center justify-between border-b px-5 py-3">
+          <div className="flex items-center justify-between border-b border-gray-100 dark:border-gray-800 px-5 py-3">
             <div className="flex items-center gap-2">
               <FiBell size={16} className="text-violet-600" />
-              <h3 className="font-semibold text-gray-900">Notifications</h3>
+              <h3 className="font-semibold text-gray-900 dark:text-white">Notifications</h3>
               {unread > 0 && (
                 <span className="rounded-full bg-red-100 px-2 py-0.5 text-xs font-semibold text-red-600">
                   {unread} new
@@ -135,7 +135,7 @@ export default function NotificationBell() {
               )}
               <button
                 onClick={() => setOpen(false)}
-                className="rounded-lg p-1 text-gray-400 hover:bg-gray-100 transition"
+                className="rounded-lg p-1 text-gray-400 dark:text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800 transition"
               >
                 <FiX size={14} />
               </button>
@@ -161,7 +161,7 @@ export default function NotificationBell() {
               notifications.map((n) => (
                 <div
                   key={n._id}
-                  className={`group flex gap-3 border-b border-gray-50 px-4 py-3 transition hover:bg-gray-50/70 ${
+                  className={`group flex gap-3 border-b border-gray-50 dark:border-gray-800 px-4 py-3 transition hover:bg-gray-50/70 dark:hover:bg-gray-800/50 ${
                     !n.read ? 'bg-violet-50/40' : ''
                   }`}
                 >
@@ -170,7 +170,7 @@ export default function NotificationBell() {
 
                   {/* Content */}
                   <div className="flex-1 min-w-0">
-                    <p className={`text-sm leading-snug ${!n.read ? 'font-medium text-gray-900' : 'text-gray-600'}`}>
+                    <p className={`text-sm leading-snug ${!n.read ? 'font-medium text-gray-900 dark:text-white' : 'text-gray-600 dark:text-gray-400'}`}>
                       {n.message}
                     </p>
                     <p className="mt-0.5 text-xs text-gray-400">{timeAgo(n.createdAt)}</p>
@@ -206,7 +206,7 @@ export default function NotificationBell() {
 
           {/* Footer */}
           {notifications.length > 0 && (
-            <div className="border-t px-5 py-2.5 text-center">
+            <div className="border-t border-gray-100 dark:border-gray-800 px-5 py-2.5 text-center">
               <p className="text-xs text-gray-400">
                 Showing {notifications.length} notification{notifications.length !== 1 ? 's' : ''}
               </p>
