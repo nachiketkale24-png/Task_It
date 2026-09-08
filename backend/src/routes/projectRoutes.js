@@ -15,7 +15,6 @@ const {
 const {
   createProjectValidator,
 } = require('../validators/projectValidator');
-const { getProjectById } = require('../services/projectService');
 
 router.use(protect);
 
