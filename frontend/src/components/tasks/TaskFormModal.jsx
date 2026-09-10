@@ -1,10 +1,12 @@
-﻿import { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { FiX } from "react-icons/fi";
 import Input from "../common/Input";
+import { canManageTasks, getCurrentUserId, getId, getTeamRole } from "../../utils/rbac";
 
-export default function TaskFormModal({ isOpen, onClose, onSubmit, task, users }) {
+export default function TaskFormModal({ isOpen, onClose, onSubmit, task, projects = [] }) {
     const [formData, setFormData] = useState({
         title: "",
+        project: "",
         description: "",
         priority: "Medium",
         status: "Pending",
@@ -19,6 +21,7 @@ export default function TaskFormModal({ isOpen, onClose, onSubmit, task, users }
         if (task) {
             setFormData({
                 title: task.title || "",
+                project: getId(task.project) || "",
                 description: task.description || "",
                 priority: task.priority || "Medium",
                 status: task.status || "Pending",
@@ -28,6 +31,7 @@ export default function TaskFormModal({ isOpen, onClose, onSubmit, task, users }
         } else {
             setFormData({
                 title: "",
+                project: "",
                 description: "",
                 priority: "Medium",
                 status: "Pending",
@@ -39,6 +43,22 @@ export default function TaskFormModal({ isOpen, onClose, onSubmit, task, users }
     }, [task, isOpen]);
 
     if (!isOpen) return null;
+
+    const currentUserId = getCurrentUserId();
+    const manageableProjects = projects.filter((project) => {
+        if (!project.team && getId(project.owner) === currentUserId) return true;
+        return canManageTasks(getTeamRole(project.team, currentUserId));
+    });
+    const selectedProject = projects.find((project) => project._id === formData.project);
+    const projectMembers =
+        selectedProject?.team?.members
+            ?.map((member) => ({
+                ...(member.user || {}),
+                _id: getId(member.user),
+                role: member.role,
+            }))
+            .filter((member) => member?._id) || [];
+    const assigneeOptions = projectMembers;
 
     const handleChange = (e) => {
         setFormData({
@@ -54,10 +74,15 @@ export default function TaskFormModal({ isOpen, onClose, onSubmit, task, users }
             return;
         }
 
+        if (!task && !formData.project) {
+            setError("Project is required");
+            return;
+        }
+
         try {
             setLoading(true);
             setError("");
-            
+
             const submitData = { ...formData };
             if (submitData.assignee === "") {
                 submitData.assignee = null;
@@ -66,7 +91,7 @@ export default function TaskFormModal({ isOpen, onClose, onSubmit, task, users }
             await onSubmit(submitData);
             onClose();
         } catch (err) {
-            setError(err.message || "Something went wrong.");
+            setError(err.response?.data?.message || err.message || "Something went wrong.");
         } finally {
             setLoading(false);
         }
@@ -74,8 +99,8 @@ export default function TaskFormModal({ isOpen, onClose, onSubmit, task, users }
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm">
-            <div className="w-full max-w-lg rounded-lg bg-[var(--surface-card)] p-6  border border-[var(--border-color)]">
-                <div className="flex items-center justify-between border-b pb-4">
+            <div className="w-full max-w-lg rounded-lg bg-[var(--surface-card)] p-6 border border-[var(--border-color)]">
+                <div className="flex items-center justify-between border-b border-[var(--border-color)] pb-4">
                     <h2 className="text-xl font-semibold text-[var(--title-color)]">
                         {task ? "Edit Task" : "Create New Task"}
                     </h2>
@@ -95,6 +120,33 @@ export default function TaskFormModal({ isOpen, onClose, onSubmit, task, users }
 
                     <div>
                         <label className="text-sm font-medium text-[var(--title-color)] block mb-1">
+                            Project
+                        </label>
+                        <select
+                            name="project"
+                            value={formData.project}
+                            onChange={(e) =>
+                                setFormData({
+                                    ...formData,
+                                    project: e.target.value,
+                                    assignee: "",
+                                })
+                            }
+                            className="w-full rounded-md border border-[var(--border-color)] bg-[var(--surface-card)] text-[var(--title-color)] px-4 py-3 outline-none focus:border-[var(--title-color)] focus:ring-2 focus:ring-gray-200 transition"
+                            required={!task}
+                        >
+                            <option value="">Select project</option>
+                            {manageableProjects.map((project) => (
+                                <option key={project._id} value={project._id}>
+                                    {project.projectName}
+                                    {project.team?.teamName ? ` - ${project.team.teamName}` : ""}
+                                </option>
+                            ))}
+                        </select>
+                    </div>
+
+                    <div>
+                        <label className="text-sm font-medium text-[var(--title-color)] block mb-1">
                             Description
                         </label>
                         <textarea
@@ -103,7 +155,7 @@ export default function TaskFormModal({ isOpen, onClose, onSubmit, task, users }
                             onChange={handleChange}
                             placeholder="Add task details..."
                             rows="3"
-                            className="w-full rounded-md border border-[var(--border-color)] bg-[var(--surface-card)] text-[var(--title-color)] placeholder:text-[var(--muted-color)] px-4 py-3 outline-none focus:border-[var(--title-color)] focus:ring-2 focus:ring-gray-200 focus:ring-2 focus:ring-gray-200 transition"
+                            className="w-full rounded-md border border-[var(--border-color)] bg-[var(--surface-card)] text-[var(--title-color)] placeholder:text-[var(--muted-color)] px-4 py-3 outline-none focus:border-[var(--title-color)] focus:ring-2 focus:ring-gray-200 transition"
                         />
                     </div>
 
@@ -162,9 +214,9 @@ export default function TaskFormModal({ isOpen, onClose, onSubmit, task, users }
                                 className="w-full rounded-md border border-[var(--border-color)] bg-[var(--surface-card)] text-[var(--title-color)] px-4 py-3 outline-none focus:border-[var(--title-color)] focus:ring-2 focus:ring-gray-200 transition"
                             >
                                 <option value="">Unassigned</option>
-                                {users.map((u) => (
+                                {assigneeOptions.map((u) => (
                                     <option key={u._id} value={u._id}>
-                                        {u.fullName} ({u.role})
+                                        {u.fullName || u.email} ({u.role || "Member"})
                                     </option>
                                 ))}
                             </select>
@@ -173,7 +225,7 @@ export default function TaskFormModal({ isOpen, onClose, onSubmit, task, users }
 
                     {error && <p className="text-sm text-red-500">{error}</p>}
 
-                    <div className="flex justify-end gap-3 pt-4 border-t">
+                    <div className="flex justify-end gap-3 pt-4 border-t border-[var(--border-color)]">
                         <button
                             type="button"
                             onClick={onClose}
@@ -194,9 +246,3 @@ export default function TaskFormModal({ isOpen, onClose, onSubmit, task, users }
         </div>
     );
 }
-
-
-
-
-
-

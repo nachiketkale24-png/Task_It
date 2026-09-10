@@ -1,6 +1,11 @@
 const { body } = require('express-validator');
 
 const createProjectValidator = [
+    body('team')
+        .optional()
+        .isMongoId()
+        .withMessage('Team must be a valid MongoDB Team ID'),
+
     body('projectName')
         .notEmpty()
         .withMessage('Project name is required'),

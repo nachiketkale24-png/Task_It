@@ -123,7 +123,7 @@ const getProjectReport = async (req, res) => {
 
         res.json({ success: true, count: data.length, data });
     } catch (err) {
-        res.status(500).json({ success: false, message: err.message });
+        res.status(err.statusCode || 500).json({ success: false, message: err.message });
     }
 };
 
@@ -169,7 +169,7 @@ const getTeamReport = async (req, res) => {
 
         res.json({ success: true, count: data.length, data });
     } catch (err) {
-        res.status(500).json({ success: false, message: err.message });
+        res.status(err.statusCode || 500).json({ success: false, message: err.message });
     }
 };
 
@@ -208,7 +208,7 @@ const getInternReport = async (req, res) => {
 
         res.json({ success: true, count: data.length, data });
     } catch (err) {
-        res.status(500).json({ success: false, message: err.message });
+        res.status(err.statusCode || 500).json({ success: false, message: err.message });
     }
 };
 
@@ -263,7 +263,7 @@ const getMonthlyReport = async (req, res) => {
 
         res.json({ success: true, data });
     } catch (err) {
-        res.status(500).json({ success: false, message: err.message });
+        res.status(err.statusCode || 500).json({ success: false, message: err.message });
     }
 };
 
@@ -301,7 +301,7 @@ const getCompletedTasksReport = async (req, res) => {
 
         res.json({ success: true, count: data.length, data });
     } catch (err) {
-        res.status(500).json({ success: false, message: err.message });
+        res.status(err.statusCode || 500).json({ success: false, message: err.message });
     }
 };
 
@@ -345,7 +345,7 @@ const getDelayedTasksReport = async (req, res) => {
 
         res.json({ success: true, count: data.length, data });
     } catch (err) {
-        res.status(500).json({ success: false, message: err.message });
+        res.status(err.statusCode || 500).json({ success: false, message: err.message });
     }
 };
 

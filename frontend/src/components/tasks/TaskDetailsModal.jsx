@@ -8,7 +8,8 @@ import {
     addComment,
     deleteComment,
     addAttachment,
-    deleteAttachment
+    deleteAttachment,
+    updateTask
 } from "../../services/taskService";
 
 export default function TaskDetailsModal({ isOpen, onClose, taskId, onTaskUpdated, onDelete }) {
@@ -118,6 +119,19 @@ export default function TaskDetailsModal({ isOpen, onClose, taskId, onTaskUpdate
         }
     };
 
+    const handleStatusChange = async (status) => {
+        try {
+            const res = await updateTask(taskId, { status });
+            setTask(res.data);
+            onTaskUpdated();
+        } catch {
+            setError("Failed to update status.");
+        }
+    };
+
+    const canManageTask = Boolean(task?.permissions?.canManage);
+    const canUpdateStatus = Boolean(task?.permissions?.canUpdateStatus);
+
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-end bg-black/45 backdrop-blur-sm">
             <div className="h-full w-full max-w-2xl bg-[var(--surface-card)]  flex flex-col border-l border-[var(--border-color)]">
@@ -150,12 +164,24 @@ export default function TaskDetailsModal({ isOpen, onClose, taskId, onTaskUpdate
                         <div className="grid grid-cols-2 gap-4 rounded-md bg-[var(--surface-muted)] p-4 border text-sm text-[var(--title-color)]">
                             <div>
                                 <span className="font-semibold text-[var(--subtitle-color)] block">Status</span>
-                                <span className={`inline-block mt-1 font-semibold ${
-                                    task?.status === "Completed" ? "text-green-600" :
-                                    task?.status === "In Progress" ? "text-blue-600" : "text-amber-600"
-                                }`}>
-                                    {task?.status}
-                                </span>
+                                {canUpdateStatus ? (
+                                    <select
+                                        value={task?.status || "Pending"}
+                                        onChange={(e) => handleStatusChange(e.target.value)}
+                                        className="mt-1 rounded-md border border-[var(--border-color)] bg-[var(--surface-card)] px-2 py-1 text-sm outline-none focus:border-[var(--title-color)]"
+                                    >
+                                        <option value="Pending">Pending</option>
+                                        <option value="In Progress">In Progress</option>
+                                        <option value="Completed">Completed</option>
+                                    </select>
+                                ) : (
+                                    <span className={`inline-block mt-1 font-semibold ${
+                                        task?.status === "Completed" ? "text-green-600" :
+                                        task?.status === "In Progress" ? "text-blue-600" : "text-amber-600"
+                                    }`}>
+                                        {task?.status}
+                                    </span>
+                                )}
                             </div>
                             <div>
                                 <span className="font-semibold text-[var(--subtitle-color)] block">Priority</span>
@@ -171,6 +197,12 @@ export default function TaskDetailsModal({ isOpen, onClose, taskId, onTaskUpdate
                                 <span className="font-semibold text-[var(--subtitle-color)] block">Assignee</span>
                                 <span className="inline-block mt-1 font-medium text-[var(--title-color)]">
                                     {task?.assignee?.fullName || "Unassigned"}
+                                </span>
+                            </div>
+                            <div>
+                                <span className="font-semibold text-[var(--subtitle-color)] block">Project</span>
+                                <span className="inline-block mt-1 font-medium text-[var(--title-color)]">
+                                    {task?.project?.projectName || "Legacy task"}
                                 </span>
                             </div>
                             <div>
@@ -195,18 +227,20 @@ export default function TaskDetailsModal({ isOpen, onClose, taskId, onTaskUpdate
                                 <FiCheckSquare />
                                 <h3>Subtasks Checklist</h3>
                             </div>
-                            <form onSubmit={handleAddSubtask} className="mt-3 flex gap-2">
-                                <input
-                                    type="text"
-                                    placeholder="Add subtask..."
-                                    value={newSubtask}
-                                    onChange={(e) => setNewSubtask(e.target.value)}
-                                    className="flex-1 rounded-md border border-[var(--border-color)] px-4 py-2 outline-none focus:border-[var(--title-color)] focus:ring-2 focus:ring-gray-200"
-                                />
-                                <button type="submit" className="rounded-md bg-[var(--accent)] px-4 text-[var(--accent-contrast)] hover:bg-[var(--accent-hover)]">
-                                    <FiPlus />
-                                </button>
-                            </form>
+                            {canManageTask && (
+                                <form onSubmit={handleAddSubtask} className="mt-3 flex gap-2">
+                                    <input
+                                        type="text"
+                                        placeholder="Add subtask..."
+                                        value={newSubtask}
+                                        onChange={(e) => setNewSubtask(e.target.value)}
+                                        className="flex-1 rounded-md border border-[var(--border-color)] px-4 py-2 outline-none focus:border-[var(--title-color)] focus:ring-2 focus:ring-gray-200"
+                                    />
+                                    <button type="submit" className="rounded-md bg-[var(--accent)] px-4 text-[var(--accent-contrast)] hover:bg-[var(--accent-hover)]">
+                                        <FiPlus />
+                                    </button>
+                                </form>
+                            )}
                             <div className="mt-4 space-y-2">
                                 {task?.subtasks?.map((sub) => (
                                     <div key={sub._id} className="flex items-center justify-between rounded-md border p-3 hover:bg-[var(--surface-muted)]">
@@ -221,9 +255,11 @@ export default function TaskDetailsModal({ isOpen, onClose, taskId, onTaskUpdate
                                                 {sub.title}
                                             </span>
                                         </label>
-                                        <button onClick={() => handleDeleteSubtask(sub._id)} className="text-red-500 hover:text-red-700">
-                                            <FiTrash2 size={16} />
-                                        </button>
+                                        {canManageTask && (
+                                            <button onClick={() => handleDeleteSubtask(sub._id)} className="text-red-500 hover:text-red-700">
+                                                <FiTrash2 size={16} />
+                                            </button>
+                                        )}
                                     </div>
                                 ))}
                             </div>
@@ -235,36 +271,40 @@ export default function TaskDetailsModal({ isOpen, onClose, taskId, onTaskUpdate
                                 <FiPaperclip />
                                 <h3>Attachments (Links)</h3>
                             </div>
-                            <form onSubmit={handleAddAttachment} className="mt-3 grid grid-cols-2 gap-2">
-                                <input
-                                    type="text"
-                                    placeholder="Link name (e.g. Figma)"
-                                    value={attachment.name}
-                                    onChange={(e) => setAttachment({ ...attachment, name: e.target.value })}
-                                    className="rounded-md border border-[var(--border-color)] px-4 py-2 outline-none focus:border-[var(--title-color)] focus:ring-2 focus:ring-gray-200"
-                                />
-                                <div className="flex gap-2">
+                            {canManageTask && (
+                                <form onSubmit={handleAddAttachment} className="mt-3 grid grid-cols-2 gap-2">
                                     <input
                                         type="text"
-                                        placeholder="URL (https://...)"
-                                        value={attachment.url}
-                                        onChange={(e) => setAttachment({ ...attachment, url: e.target.value })}
-                                        className="flex-1 rounded-md border border-[var(--border-color)] px-4 py-2 outline-none focus:border-[var(--title-color)] focus:ring-2 focus:ring-gray-200"
+                                        placeholder="Link name (e.g. Figma)"
+                                        value={attachment.name}
+                                        onChange={(e) => setAttachment({ ...attachment, name: e.target.value })}
+                                        className="rounded-md border border-[var(--border-color)] px-4 py-2 outline-none focus:border-[var(--title-color)] focus:ring-2 focus:ring-gray-200"
                                     />
-                                    <button type="submit" className="rounded-md bg-[var(--accent)] px-4 text-[var(--accent-contrast)] hover:bg-[var(--accent-hover)]">
-                                        <FiPlus />
-                                    </button>
-                                </div>
-                            </form>
+                                    <div className="flex gap-2">
+                                        <input
+                                            type="text"
+                                            placeholder="URL (https://...)"
+                                            value={attachment.url}
+                                            onChange={(e) => setAttachment({ ...attachment, url: e.target.value })}
+                                            className="flex-1 rounded-md border border-[var(--border-color)] px-4 py-2 outline-none focus:border-[var(--title-color)] focus:ring-2 focus:ring-gray-200"
+                                        />
+                                        <button type="submit" className="rounded-md bg-[var(--accent)] px-4 text-[var(--accent-contrast)] hover:bg-[var(--accent-hover)]">
+                                            <FiPlus />
+                                        </button>
+                                    </div>
+                                </form>
+                            )}
                             <div className="mt-4 space-y-2">
                                 {task?.attachments?.map((att) => (
                                     <div key={att._id} className="flex items-center justify-between rounded-md border p-3 hover:bg-[var(--surface-muted)]">
                                         <a href={att.url} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
                                             {att.name}
                                         </a>
-                                        <button onClick={() => handleDeleteAttachment(att._id)} className="text-red-500 hover:text-red-700">
-                                            <FiTrash2 size={16} />
-                                        </button>
+                                        {canManageTask && (
+                                            <button onClick={() => handleDeleteAttachment(att._id)} className="text-red-500 hover:text-red-700">
+                                                <FiTrash2 size={16} />
+                                            </button>
+                                        )}
                                     </div>
                                 ))}
                             </div>
@@ -309,12 +349,14 @@ export default function TaskDetailsModal({ isOpen, onClose, taskId, onTaskUpdate
                 )}
 
                 <div className="border-t p-6 bg-[var(--surface-muted)] flex justify-between gap-3">
-                    <button
-                        onClick={() => onDelete(task?._id)}
-                        className="rounded-md bg-red-500 px-5 py-3 text-white hover:bg-red-600 transition font-medium"
-                    >
-                        Delete Task
-                    </button>
+                    {canManageTask ? (
+                        <button
+                            onClick={() => onDelete(task?._id)}
+                            className="rounded-md bg-red-500 px-5 py-3 text-white hover:bg-red-600 transition font-medium"
+                        >
+                            Delete Task
+                        </button>
+                    ) : <span />}
                     <button
                         onClick={onClose}
                         className="rounded-md border border-[var(--border-color)] px-5 py-3 bg-[var(--surface-card)] hover:bg-[var(--surface-muted)] transition"

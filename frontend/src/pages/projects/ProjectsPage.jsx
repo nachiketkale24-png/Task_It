@@ -6,18 +6,29 @@ import {
   updateProject,
   deleteProject,
 } from "../../services/projectService";
+import { getTeams } from "../../services/teamService";
+import {
+  canDeleteProject,
+  canManageProjects,
+  getCurrentUserId,
+  getId,
+  getTeamRole,
+} from "../../utils/rbac";
 
 const ProjectsPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const [projects, setProjects] = useState([]);
+  const [teams, setTeams] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
   const [showModal, setShowModal] = useState(false);
   const [editingId, setEditingId] = useState(null);
 
   const [formData, setFormData] = useState({
     projectName: "",
+    team: "",
     description: "",
     status: "Active",
     priority: "Medium",
@@ -51,14 +62,28 @@ const ProjectsPage = () => {
 
   async function fetchProjects() {
     try {
-      const res = await getProjects();
-      setProjects(res.data.data);
+      setError("");
+      const [projectRes, teamRes] = await Promise.all([getProjects(), getTeams()]);
+      setProjects(projectRes.data.data);
+      setTeams(teamRes.data);
     } catch (error) {
       console.error(error);
+      setError(error.response?.data?.message || "Failed to load projects.");
     } finally {
       setLoading(false);
     }
   }
+
+  const currentUserId = getCurrentUserId();
+  const manageableTeams = teams.filter((team) =>
+    canManageProjects(getTeamRole(team, currentUserId))
+  );
+  const canCreateProject = manageableTeams.length > 0;
+
+  const projectRole = (project) => {
+    if (!project.team && getId(project.owner) === currentUserId) return "Owner";
+    return getTeamRole(project.team, currentUserId);
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -72,6 +97,7 @@ const ProjectsPage = () => {
     };
 
     try {
+      setError("");
       if (editingId) {
         await updateProject(editingId, payload);
       } else {
@@ -83,6 +109,7 @@ const ProjectsPage = () => {
 
       setFormData({
         projectName: "",
+        team: "",
         description: "",
         status: "Active",
         priority: "Medium",
@@ -96,6 +123,7 @@ const ProjectsPage = () => {
       fetchProjects();
     } catch (error) {
       console.error(error);
+      setError(error.response?.data?.message || "Failed to save project.");
     }
   };
 
@@ -107,10 +135,12 @@ const ProjectsPage = () => {
     if (!confirmDelete) return;
 
     try {
+      setError("");
       await deleteProject(id);
       setProjects(projects.filter((p) => p._id !== id));
     } catch (error) {
       console.error(error);
+      setError(error.response?.data?.message || "Failed to delete project.");
     }
   };
 
@@ -119,6 +149,7 @@ const ProjectsPage = () => {
 
     setFormData({
       projectName: "",
+      team: manageableTeams[0]?._id || "",
       description: "",
       status: "Active",
       priority: "Medium",
@@ -137,6 +168,7 @@ const ProjectsPage = () => {
 
     setFormData({
       projectName: project.projectName || "",
+      team: getId(project.team) || "",
       description: project.description || "",
       status: project.status || "Active",
       priority: project.priority || "Medium",
@@ -164,13 +196,21 @@ const ProjectsPage = () => {
           </p>
         </div>
 
-        <button
-          onClick={openCreateModal}
-          className="ui-button ui-button-primary"
-        >
-          + New Project
-        </button>
+        {canCreateProject && (
+          <button
+            onClick={openCreateModal}
+            className="ui-button ui-button-primary"
+          >
+            + New Project
+          </button>
+        )}
       </div>
+
+      {error && (
+        <p className="mb-4 rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-600 dark:border-red-900/60 dark:bg-red-950/30 dark:text-red-300">
+          {error}
+        </p>
+      )}
 
       <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
         {projects.map((project) => (
@@ -184,7 +224,7 @@ const ProjectsPage = () => {
                   {project.projectName}
                 </h2>
                 <p className="text-sm text-[var(--subtitle-color)] mt-1">
-                  {project.priority} priority
+                  {project.team?.teamName || "Legacy project"} • {project.priority} priority
                 </p>
               </div>
 
@@ -253,19 +293,23 @@ const ProjectsPage = () => {
                 View
               </button>
 
-              <button
-                onClick={() => openEditModal(project)}
-                className="ui-button ui-button-secondary"
-              >
-                Edit
-              </button>
+              {canManageProjects(projectRole(project)) && (
+                <button
+                  onClick={() => openEditModal(project)}
+                  className="ui-button ui-button-secondary"
+                >
+                  Edit
+                </button>
+              )}
 
-              <button
-                onClick={() => handleDelete(project._id)}
-                className="ui-button border-red-200 text-red-600 hover:bg-red-50 dark:border-red-900/60 dark:hover:bg-red-950/30"
-              >
-                Delete
-              </button>
+              {canDeleteProject(projectRole(project)) && (
+                <button
+                  onClick={() => handleDelete(project._id)}
+                  className="ui-button border-red-200 text-red-600 hover:bg-red-50 dark:border-red-900/60 dark:hover:bg-red-950/30"
+                >
+                  Delete
+                </button>
+              )}
             </div>
           </div>
         ))}
@@ -279,6 +323,25 @@ const ProjectsPage = () => {
             </h2>
 
             <form onSubmit={handleSubmit} className="space-y-4">
+              <select
+                value={formData.team}
+                onChange={(e) =>
+                  setFormData({
+                    ...formData,
+                    team: e.target.value,
+                  })
+                }
+                className="ui-input"
+                required
+              >
+                <option value="">Select team</option>
+                {manageableTeams.map((team) => (
+                  <option key={team._id} value={team._id}>
+                    {team.teamName}
+                  </option>
+                ))}
+              </select>
+
               <input
                 type="text"
                 placeholder="Project name"

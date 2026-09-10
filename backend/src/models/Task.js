@@ -71,9 +71,17 @@ const taskSchema = new mongoose.Schema(
     deadline: {
       type: Date
     },
+    project: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Project',
+      required: function requireProjectForNewTask() {
+        return this.isNew;
+      }
+    },
     assignee: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'User'
+      ref: 'User',
+      alias: 'assignedTo'
     },
     createdBy: {
       type: mongoose.Schema.Types.ObjectId,

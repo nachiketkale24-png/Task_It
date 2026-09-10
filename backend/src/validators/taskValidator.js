@@ -18,13 +18,31 @@ const createTaskValidator = [
 
   body('deadline')
     .optional()
-    .isISO8601()
+    .custom((value) => !value || !Number.isNaN(Date.parse(value)))
     .withMessage('Deadline must be a valid date'),
+
+  body('project')
+    .optional()
+    .isMongoId()
+    .withMessage('Project must be a valid MongoDB Project ID'),
 
   body('assignee')
     .optional()
-    .isMongoId()
-    .withMessage('Assignee must be a valid MongoDB User ID')
+    .custom((value) => {
+      if (value === null || value === '') return true;
+      const mongoose = require('mongoose');
+      return mongoose.Types.ObjectId.isValid(value);
+    })
+    .withMessage('Assignee must be a valid MongoDB User ID or null'),
+
+  body('assignedTo')
+    .optional()
+    .custom((value) => {
+      if (value === null || value === '') return true;
+      const mongoose = require('mongoose');
+      return mongoose.Types.ObjectId.isValid(value);
+    })
+    .withMessage('Assigned user must be a valid MongoDB User ID or null')
 ];
 
 const updateTaskValidator = [
@@ -46,8 +64,13 @@ const updateTaskValidator = [
 
   body('deadline')
     .optional()
-    .isISO8601()
+    .custom((value) => !value || !Number.isNaN(Date.parse(value)))
     .withMessage('Deadline must be a valid date'),
+
+  body('project')
+    .optional()
+    .isMongoId()
+    .withMessage('Project must be a valid MongoDB Project ID'),
 
   body('assignee')
     .optional()
@@ -56,7 +79,16 @@ const updateTaskValidator = [
       const mongoose = require('mongoose');
       return mongoose.Types.ObjectId.isValid(value);
     })
-    .withMessage('Assignee must be a valid MongoDB User ID or null')
+    .withMessage('Assignee must be a valid MongoDB User ID or null'),
+
+  body('assignedTo')
+    .optional()
+    .custom((value) => {
+      if (value === null || value === '') return true;
+      const mongoose = require('mongoose');
+      return mongoose.Types.ObjectId.isValid(value);
+    })
+    .withMessage('Assigned user must be a valid MongoDB User ID or null')
 ];
 
 module.exports = {

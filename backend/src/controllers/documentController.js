@@ -1,5 +1,10 @@
 const Document = require('../models/Document');
 const cloudinary = require('cloudinary').v2;
+const {
+  ROLE,
+  getAccessibleProjectIds,
+  requireProjectAccess,
+} = require('../utils/rbac');
 
 // Configure cloudinary (only if credentials exist)
 if (process.env.CLOUDINARY_CLOUD_NAME) {
@@ -17,11 +22,17 @@ const uploadDocument = async (req, res) => {
       return res.status(400).json({ success: false, message: 'No file provided' });
     }
 
-    const { name, description, fileType, tags } = req.body;
+    const { name, description, fileType, tags, project } = req.body;
 
     if (!fileType) {
       return res.status(400).json({ success: false, message: 'fileType is required' });
     }
+
+    if (!project) {
+      return res.status(400).json({ success: false, message: 'project is required' });
+    }
+
+    await requireProjectAccess(project, req.user._id, [ROLE.OWNER, ROLE.TEAM_LEAD]);
 
     let fileUrl = '';
     let publicId = '';
@@ -60,17 +71,23 @@ const uploadDocument = async (req, res) => {
       fileUrl,
       publicId,
       uploadedBy: req.user._id,
+      project,
       fileSize: req.file.size,
       originalName: req.file.originalname,
       tags: tags ? tags.split(',').map((t) => t.trim()) : [],
     });
 
     await document.populate('uploadedBy', 'fullName email');
+    await document.populate({
+      path: 'project',
+      select: 'projectName team owner',
+      populate: { path: 'team', select: 'teamName owner members' },
+    });
 
     res.status(201).json({ success: true, message: 'Document uploaded successfully', data: document });
   } catch (err) {
     console.error('[DocumentController] Upload error:', err);
-    res.status(500).json({ success: false, message: err.message });
+    res.status(err.statusCode || 500).json({ success: false, message: err.message });
   }
 };
 
@@ -82,26 +99,48 @@ const getDocuments = async (req, res) => {
       filter.fileType = req.query.type;
     }
 
+    const projectIds = await getAccessibleProjectIds(req.user._id);
+    filter.$or = [
+      { project: { $in: projectIds } },
+      { uploadedBy: req.user._id, project: { $exists: false } },
+    ];
+
     const documents = await Document.find(filter)
       .populate('uploadedBy', 'fullName email')
+      .populate({
+        path: 'project',
+        select: 'projectName team owner',
+        populate: { path: 'team', select: 'teamName owner members' },
+      })
       .sort({ createdAt: -1 });
 
     res.json({ success: true, count: documents.length, data: documents });
   } catch (err) {
-    res.status(500).json({ success: false, message: err.message });
+    res.status(err.statusCode || 500).json({ success: false, message: err.message });
   }
 };
 
 // GET /api/documents/:id — Get a single document
 const getDocument = async (req, res) => {
   try {
-    const document = await Document.findById(req.params.id).populate('uploadedBy', 'fullName email');
+    const document = await Document.findById(req.params.id)
+      .populate('uploadedBy', 'fullName email')
+      .populate({
+        path: 'project',
+        select: 'projectName team owner',
+        populate: { path: 'team', select: 'teamName owner members' },
+      });
     if (!document) {
       return res.status(404).json({ success: false, message: 'Document not found' });
     }
+    if (document.project) {
+      await requireProjectAccess(document.project._id || document.project, req.user._id);
+    } else if (document.uploadedBy._id.toString() !== req.user._id.toString()) {
+      return res.status(403).json({ success: false, message: 'Not authorized to view this document' });
+    }
     res.json({ success: true, data: document });
   } catch (err) {
-    res.status(500).json({ success: false, message: err.message });
+    res.status(err.statusCode || 500).json({ success: false, message: err.message });
   }
 };
 
@@ -113,8 +152,14 @@ const deleteDocument = async (req, res) => {
       return res.status(404).json({ success: false, message: 'Document not found' });
     }
 
-    // Only uploader can delete
-    if (document.uploadedBy.toString() !== req.user._id.toString()) {
+    if (document.project) {
+      const { role } = await requireProjectAccess(document.project, req.user._id);
+      const isUploader = document.uploadedBy.toString() === req.user._id.toString();
+      const isManager = [ROLE.OWNER, ROLE.TEAM_LEAD].includes(role);
+      if (!isUploader && !isManager) {
+        return res.status(403).json({ success: false, message: 'Not authorized to delete this document' });
+      }
+    } else if (document.uploadedBy.toString() !== req.user._id.toString()) {
       return res.status(403).json({ success: false, message: 'Not authorized to delete this document' });
     }
 
@@ -126,7 +171,7 @@ const deleteDocument = async (req, res) => {
     await Document.findByIdAndDelete(req.params.id);
     res.json({ success: true, message: 'Document deleted successfully' });
   } catch (err) {
-    res.status(500).json({ success: false, message: err.message });
+    res.status(err.statusCode || 500).json({ success: false, message: err.message });
   }
 };
 

@@ -1,5 +1,11 @@
 const Project = require("../models/Project");
 const axios = require("axios");
+const {
+    ROLE,
+    getAccessibleProjectIds,
+    getManagedProjectIds,
+    requireProjectAccess,
+} = require("../utils/rbac");
 
 // Helper: parse owner/repo from a GitHub URL
 const parseGitHubUrl = (url) => {
@@ -26,7 +32,11 @@ const ghRequest = async (path, token) => {
 // GET /api/github/projects  — list projects that have a GitHub repo URL
 const getLinkedProjects = async (req, res) => {
     try {
-        const projects = await Project.find({ githubRepo: { $nin: [null, ""] } })
+        const projectIds = await getAccessibleProjectIds(req.user._id);
+        const projects = await Project.find({
+            _id: { $in: projectIds },
+            githubRepo: { $nin: [null, ""] },
+        })
             .select("projectName description githubRepo status");
         res.json({ success: true, data: projects });
     } catch (err) {
@@ -41,6 +51,7 @@ const setProjectRepo = async (req, res) => {
         if (!githubRepo) {
             return res.status(400).json({ success: false, message: "githubRepo URL is required" });
         }
+        await requireProjectAccess(req.params.id, req.user._id, [ROLE.OWNER, ROLE.TEAM_LEAD]);
         const project = await Project.findByIdAndUpdate(
             req.params.id,
             { githubRepo },
@@ -49,7 +60,7 @@ const setProjectRepo = async (req, res) => {
         if (!project) return res.status(404).json({ success: false, message: "Project not found" });
         res.json({ success: true, data: project });
     } catch (err) {
-        res.status(500).json({ success: false, message: err.message });
+        res.status(err.statusCode || 500).json({ success: false, message: err.message });
     }
 };
 
@@ -134,7 +145,8 @@ const getRepoInfo = async (req, res) => {
 // GET /api/github/all-projects  — all projects (to allow linking)
 const getAllProjects = async (req, res) => {
     try {
-        const projects = await Project.find({}).select("projectName description githubRepo status");
+        const projectIds = await getManagedProjectIds(req.user._id);
+        const projects = await Project.find({ _id: { $in: projectIds } }).select("projectName description githubRepo status");
         res.json({ success: true, data: projects });
     } catch (err) {
         res.status(500).json({ success: false, message: err.message });

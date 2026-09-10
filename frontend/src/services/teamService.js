@@ -53,3 +53,13 @@ export const removeMember = async (teamId, userId) => {
 
     return response.data;
 };
+
+// Update member role
+export const updateMemberRole = async (teamId, userId, role) => {
+    const response = await api.patch(
+        `/team/${teamId}/member/${userId}/role`,
+        { role }
+    );
+
+    return response.data;
+};

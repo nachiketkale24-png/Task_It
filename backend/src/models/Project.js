@@ -19,6 +19,14 @@ const projectSchema = new mongoose.Schema(
       required: true,
     },
 
+    team: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Team',
+      required: function requireTeamForNewProject() {
+        return this.isNew;
+      },
+    },
+
     status: {
       type: String,
       enum: ['Planning', 'Active', 'On Hold', 'Completed'],

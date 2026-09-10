@@ -302,8 +302,8 @@ export default function Reports() {
                 ? await report.fetch(month)
                 : await report.fetch();
             setReportData(res.data.data);
-        } catch {
-            setError("Failed to load report data.");
+        } catch (err) {
+            setError(err.response?.data?.message || "Failed to load report data.");
         } finally {
             setLoading(false);
         }

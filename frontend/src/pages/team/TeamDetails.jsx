@@ -15,30 +15,16 @@ import {
     inviteMember,
     leaveTeam,
     removeMember,
+    updateMemberRole,
 } from "../../services/teamService";
-
-const getCurrentUserId = () => {
-    try {
-        const user = JSON.parse(localStorage.getItem("user"));
-        if (user?.id || user?._id) {
-            return user.id || user._id;
-        }
-    } catch {
-        // Fall back to the token below when saved user data is missing/stale.
-    }
-
-    try {
-        const token = localStorage.getItem("token");
-        const payload = token?.split(".")[1];
-
-        if (!payload) return null;
-
-        const decoded = JSON.parse(atob(payload));
-        return decoded.id || decoded._id || null;
-    } catch {
-        return null;
-    }
-};
+import {
+    canDeleteTeam,
+    canEditTeam,
+    canManageMembers,
+    getCurrentUserId,
+    getTeamRole,
+    normalizeRole,
+} from "../../utils/rbac";
 
 export default function TeamDetails() {
     const { id } = useParams();
@@ -53,9 +39,10 @@ export default function TeamDetails() {
 
     const [currentUserId] = useState(getCurrentUserId);
 
-    const isOwner =
-        team?.owner?._id === currentUserId ||
-        team?.owner === currentUserId;
+    const currentTeamRole = getTeamRole(team, currentUserId);
+    const canManageTeamMembers = canManageMembers(currentTeamRole);
+    const canEditCurrentTeam = canEditTeam(currentTeamRole);
+    const canDeleteCurrentTeam = canDeleteTeam(currentTeamRole);
 
     const fetchTeam = useCallback(async () => {
         try {
@@ -116,6 +103,24 @@ export default function TeamDetails() {
             setError(
                 err.response?.data?.message ||
                     "Failed to remove member."
+            );
+        } finally {
+            setActionLoading(false);
+        }
+    };
+
+    const handleRoleChange = async (userId, role) => {
+        try {
+            setActionLoading(true);
+            setError("");
+            setSuccess("");
+            await updateMemberRole(id, userId, role);
+            setSuccess("Member role updated successfully.");
+            await fetchTeam();
+        } catch (err) {
+            setError(
+                err.response?.data?.message ||
+                    "Failed to update member role."
             );
         } finally {
             setActionLoading(false);
@@ -200,7 +205,7 @@ export default function TeamDetails() {
                     </div>
 
                     <div className="flex flex-wrap gap-3">
-                        {isOwner ? (
+                        {canEditCurrentTeam ? (
                             <>
                                 <Link
                                     to={`/teams/${id}/edit`}
@@ -210,14 +215,16 @@ export default function TeamDetails() {
                                     Edit
                                 </Link>
 
-                                <button
-                                    onClick={handleDeleteTeam}
-                                    disabled={actionLoading}
-                                    className="inline-flex items-center gap-2 rounded-md bg-red-500 px-4 py-3 text-white hover:bg-red-600 disabled:opacity-60"
-                                >
-                                    <FiTrash2 />
-                                    Delete
-                                </button>
+                                {canDeleteCurrentTeam && (
+                                    <button
+                                        onClick={handleDeleteTeam}
+                                        disabled={actionLoading}
+                                        className="inline-flex items-center gap-2 rounded-md bg-red-500 px-4 py-3 text-white hover:bg-red-600 disabled:opacity-60"
+                                    >
+                                        <FiTrash2 />
+                                        Delete
+                                    </button>
+                                )}
                             </>
                         ) : (
                             <button
@@ -271,11 +278,25 @@ export default function TeamDetails() {
                                         </div>
 
                                         <div className="flex items-center gap-3">
-                                            <span className="rounded-full bg-[var(--hover-bg)] px-3 py-1 text-sm">
-                                                {member.role}
-                                            </span>
+                                            {canManageTeamMembers && !isTeamOwner ? (
+                                                <select
+                                                    value={normalizeRole(member.role)}
+                                                    onChange={(e) =>
+                                                        handleRoleChange(userId, e.target.value)
+                                                    }
+                                                    disabled={actionLoading}
+                                                    className="rounded-md border border-[var(--border-color)] bg-[var(--surface-card)] px-3 py-1 text-sm outline-none focus:border-[var(--title-color)]"
+                                                >
+                                                    <option value="Intern">Intern</option>
+                                                    <option value="TeamLead">TeamLead</option>
+                                                </select>
+                                            ) : (
+                                                <span className="rounded-full bg-[var(--hover-bg)] px-3 py-1 text-sm">
+                                                    {normalizeRole(member.role)}
+                                                </span>
+                                            )}
 
-                                            {isOwner && !isTeamOwner && (
+                                            {canManageTeamMembers && !isTeamOwner && (
                                                 <button
                                                     onClick={() =>
                                                         handleRemoveMember(userId)
@@ -294,6 +315,51 @@ export default function TeamDetails() {
                         </div>
                     </div>
 
+                    <div className="rounded-md border border-[var(--border-color)] bg-[var(--surface-card)] p-6 lg:col-span-2">
+                        <div className="mb-6 flex items-center justify-between">
+                            <div>
+                                <h2 className="text-xl font-semibold">
+                                    Projects
+                                </h2>
+
+                                <p className="mt-1 text-sm text-[var(--subtitle-color)]">
+                                    {team.projects?.length || 0} projects in this team
+                                </p>
+                            </div>
+                        </div>
+
+                        {team.projects?.length > 0 ? (
+                            <div className="grid gap-3 md:grid-cols-2">
+                                {team.projects.map((project) => (
+                                    <Link
+                                        key={project._id}
+                                        to={`/projects/${project._id}`}
+                                        className="rounded-md border border-[var(--border-color)] p-4 hover:bg-[var(--hover-bg)]"
+                                    >
+                                        <div className="flex items-start justify-between gap-3">
+                                            <div>
+                                                <p className="font-medium text-[var(--title-color)]">
+                                                    {project.projectName}
+                                                </p>
+                                                <p className="mt-1 line-clamp-2 text-sm text-[var(--subtitle-color)]">
+                                                    {project.description || "No description."}
+                                                </p>
+                                            </div>
+
+                                            <span className="ui-badge badge-neutral">
+                                                {project.status}
+                                            </span>
+                                        </div>
+                                    </Link>
+                                ))}
+                            </div>
+                        ) : (
+                            <p className="text-sm text-[var(--subtitle-color)]">
+                                No projects have been linked to this team yet.
+                            </p>
+                        )}
+                    </div>
+
                     <div className="rounded-md border border-[var(--border-color)] bg-[var(--surface-card)] p-6 ">
                         <h2 className="text-xl font-semibold">
                             Team Actions
@@ -310,7 +376,7 @@ export default function TeamDetails() {
                                 </p>
                             </div>
 
-                            {isOwner && (
+                            {canManageTeamMembers && (
                                 <form
                                     onSubmit={handleInvite}
                                     className="space-y-3"

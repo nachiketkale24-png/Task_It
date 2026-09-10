@@ -1,12 +1,14 @@
 ﻿import { useEffect, useState } from "react";
 import { FiPlus, FiSearch, FiCalendar, FiCheckSquare, FiAlertCircle } from "react-icons/fi";
-import { getTasks, createTask, updateTask, deleteTask, getUsers } from "../../services/taskService";
+import { getTasks, createTask, updateTask, deleteTask } from "../../services/taskService";
+import { getProjects } from "../../services/projectService";
 import TaskFormModal from "../../components/tasks/TaskFormModal";
 import TaskDetailsModal from "../../components/tasks/TaskDetailsModal";
+import { canManageTasks, getCurrentUserId, getId, getTeamRole } from "../../utils/rbac";
 
 export default function TaskList() {
     const [tasks, setTasks] = useState([]);
-    const [users, setUsers] = useState([]);
+    const [projects, setProjects] = useState([]);
     const [loading, setLoading] = useState(true);
 
     // Filter states
@@ -23,10 +25,12 @@ export default function TaskList() {
     const loadData = async () => {
         try {
             setLoading(true);
-            const taskRes = await getTasks();
-            const userRes = await getUsers();
+            const [taskRes, projectRes] = await Promise.all([
+                getTasks(),
+                getProjects(),
+            ]);
             setTasks(taskRes.data);
-            setUsers(userRes.data);
+            setProjects(projectRes.data.data);
         } catch (err) {
             console.error("Failed to load task dashboard.", err);
         } finally {
@@ -68,6 +72,22 @@ export default function TaskList() {
         return matchesStatus && matchesPriority && matchesSearch;
     });
 
+    const currentUserId = getCurrentUserId();
+    const canCreateTask = projects.some((project) => {
+        if (!project.team && getId(project.owner) === currentUserId) return true;
+        return canManageTasks(getTeamRole(project.team, currentUserId));
+    });
+    const canManageTask = (task) => {
+        const taskProject = task.project && typeof task.project === "object" ? task.project : null;
+        const project = !taskProject?.team?.members
+            ? projects.find((item) => item._id === (taskProject?._id || task.project))
+            : taskProject;
+
+        if (!project && getId(task.createdBy) === currentUserId) return true;
+        if (!project?.team && getId(project?.owner) === currentUserId) return true;
+        return canManageTasks(getTeamRole(project?.team, currentUserId));
+    };
+
     return (
         <div className="app-page">
             <div className="mx-auto max-w-6xl">
@@ -77,16 +97,18 @@ export default function TaskList() {
                         <h1 className="page-title">Workspace Tasks</h1>
                         <p className="page-description">Create, assign, track checklist items, and discuss tasks.</p>
                     </div>
-                    <button
-                        onClick={() => {
-                            setSelectedTask(null);
-                            setIsFormOpen(true);
-                        }}
-                        className="ui-button ui-button-primary"
-                    >
-                        <FiPlus />
-                        Add New Task
-                    </button>
+                    {canCreateTask && (
+                        <button
+                            onClick={() => {
+                                setSelectedTask(null);
+                                setIsFormOpen(true);
+                            }}
+                            className="ui-button ui-button-primary"
+                        >
+                            <FiPlus />
+                            Add New Task
+                        </button>
+                    )}
                 </div>
 
                 {/* Filters Row */}
@@ -166,20 +188,25 @@ export default function TaskList() {
                                                 {t.priority}
                                             </span>
 
-                                            <button
-                                                onClick={(e) => {
-                                                    e.stopPropagation();
-                                                    setSelectedTask(t);
-                                                    setIsFormOpen(true);
-                                                }}
-                                                className="text-xs text-[var(--muted-color)] hover:text-[var(--title-color)] opacity-0 group-hover:opacity-100 transition"
-                                            >
-                                                Edit
-                                            </button>
+                                            {canManageTask(t) && (
+                                                <button
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        setSelectedTask(t);
+                                                        setIsFormOpen(true);
+                                                    }}
+                                                    className="text-xs text-[var(--muted-color)] hover:text-[var(--title-color)] opacity-0 group-hover:opacity-100 transition"
+                                                >
+                                                    Edit
+                                                </button>
+                                            )}
                                         </div>
 
                                         {/* Title */}
                                         <h3 className="mt-3 line-clamp-1 text-base font-semibold text-[var(--title-color)]">{t.title}</h3>
+                                        <p className="mt-1 text-xs text-[var(--muted-color)]">
+                                            {t.project?.projectName || "Legacy task"}
+                                        </p>
                                         <p className="mt-1 text-sm text-[var(--subtitle-color)] line-clamp-2">{t.description || "No description."}</p>
                                     </div>
 
@@ -233,7 +260,7 @@ export default function TaskList() {
                     onClose={() => setIsFormOpen(false)}
                     onSubmit={handleCreateOrUpdate}
                     task={selectedTask}
-                    users={users}
+                    projects={projects}
                 />
 
                 <TaskDetailsModal

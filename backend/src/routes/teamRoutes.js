@@ -11,18 +11,24 @@ const {
   updateTeam,
   inviteMember,
   removeMember,
+  updateMemberRole,
   leaveTeam,
   deleteTeam,
 } = require("../controllers/teamController");
 
 const {
   createTeamValidator,
+  updateTeamValidator,
+  inviteMemberValidator,
 } = require("../validators/teamValidator");
+
+const validate = require("../middleware/validationMiddleware");
 
 router.post(
   "/",
   protect,
   createTeamValidator,
+  validate,
   createTeam
 );
 
@@ -41,12 +47,16 @@ router.get(
 router.put(
   "/:id",
   protect,
+  updateTeamValidator,
+  validate,
   updateTeam
 );
 
 router.post(
   "/:id/invite",
   protect,
+  inviteMemberValidator,
+  validate,
   inviteMember
 );
 
@@ -60,6 +70,12 @@ router.delete(
   "/:id/member/:userId",
   protect,
   removeMember
+);
+
+router.patch(
+  "/:id/member/:userId/role",
+  protect,
+  updateMemberRole
 );
 
 router.delete(

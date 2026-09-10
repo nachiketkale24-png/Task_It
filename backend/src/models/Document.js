@@ -31,6 +31,10 @@ const documentSchema = new mongoose.Schema(
       ref: 'User',
       required: true,
     },
+    project: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Project',
+    },
     fileSize: {
       type: Number, // bytes
       default: 0,

@@ -14,7 +14,7 @@ API.interceptors.request.use((config) => {
   return config;
 });
 
-export const getProjects = () => API.get("/projects");
+export const getProjects = (params) => API.get("/projects", { params });
 
 export const createProject = (data) => API.post("/projects", data);
 

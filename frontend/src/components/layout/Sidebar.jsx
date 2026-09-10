@@ -11,6 +11,7 @@ import {
     FiSettings,
     FiGithub,
 } from "react-icons/fi";
+import { isSuperAdmin } from "../../utils/rbac";
 
 const menu = [
     { id: "dashboard",  label: "Dashboard",  icon: FiGrid },
@@ -26,6 +27,10 @@ const menu = [
 
 export default function Sidebar({ activePage, setActivePage, isOpen = false }) {
     const navigate = useNavigate();
+    const user = (() => {
+        try { return JSON.parse(localStorage.getItem("user") || "{}"); } catch { return {}; }
+    })();
+    const visibleMenu = menu.filter((item) => item.id !== "users" || isSuperAdmin(user));
 
     const handleLogout = () => {
         localStorage.removeItem("token");
@@ -43,7 +48,7 @@ export default function Sidebar({ activePage, setActivePage, isOpen = false }) {
             </div>
 
             <nav className="flex-1 overflow-y-auto px-3 py-4">
-                {menu.map((item) => {
+                {visibleMenu.map((item) => {
                     const Icon = item.icon;
                     const isActive = activePage === item.id;
                     return (

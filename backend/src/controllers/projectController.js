@@ -14,7 +14,7 @@ const createProject = async (req, res) => {
       data: project,
     });
   } catch (error) {
-    res.status(400).json({
+    res.status(error.statusCode || 400).json({
       success: false,
       message: error.message,
     });
@@ -22,72 +22,100 @@ const createProject = async (req, res) => {
 };
 
 const getProjects = async (req, res) => {
-  const projects = await projectService.getAllProjects(req.user._id);
+  try {
+    const projects = await projectService.getAllProjects(req.user._id, req.query);
 
-  res.json({
-    success: true,
-    count: projects.length,
-    data: projects,
-  });
+    res.json({
+      success: true,
+      count: projects.length,
+      data: projects,
+    });
+  } catch (error) {
+    res.status(error.statusCode || 500).json({
+      success: false,
+      message: error.message,
+    });
+  }
 };
 
 const getProject = async (req, res) => {
-  const project = await projectService.getProjectById(
-    req.params.id,
-    req.user._id
-  );
+  try {
+    const project = await projectService.getProjectById(
+      req.params.id,
+      req.user._id
+    );
 
-  if (!project) {
-    return res.status(404).json({
+    if (!project) {
+      return res.status(404).json({
+        success: false,
+        message: 'Project not found',
+      });
+    }
+
+    res.json({
+      success: true,
+      data: project,
+    });
+  } catch (error) {
+    res.status(error.statusCode || 400).json({
       success: false,
-      message: 'Project not found',
+      message: error.message,
     });
   }
-
-  res.json({
-    success: true,
-    data: project,
-  });
 };
 
 const updateProject = async (req, res) => {
-  const project = await projectService.updateProject(
-    req.params.id,
-    req.user._id,
-    req.body
-  );
+  try {
+    const project = await projectService.updateProject(
+      req.params.id,
+      req.user._id,
+      req.body
+    );
 
-  if (!project) {
-    return res.status(404).json({
+    if (!project) {
+      return res.status(404).json({
+        success: false,
+        message: 'Project not found',
+      });
+    }
+
+    res.json({
+      success: true,
+      message: 'Project updated',
+      data: project,
+    });
+  } catch (error) {
+    res.status(error.statusCode || 400).json({
       success: false,
-      message: 'Project not found',
+      message: error.message,
     });
   }
-
-  res.json({
-    success: true,
-    message: 'Project updated',
-    data: project,
-  });
 };
 
 const deleteProject = async (req, res) => {
-  const project = await projectService.deleteProject(
-    req.params.id,
-    req.user._id
-  );
+  try {
+    const project = await projectService.deleteProject(
+      req.params.id,
+      req.user._id
+    );
 
-  if (!project) {
-    return res.status(404).json({
+    if (!project) {
+      return res.status(404).json({
+        success: false,
+        message: 'Project not found',
+      });
+    }
+
+    res.json({
+      success: true,
+      message: 'Project deleted',
+    });
+  } catch (error) {
+    res.status(error.statusCode || 400).json({
       success: false,
-      message: 'Project not found',
+      message: error.message,
     });
   }
-
-  res.json({
-    success: true,
-    message: 'Project deleted',
-  });
 };
 
 module.exports = {
