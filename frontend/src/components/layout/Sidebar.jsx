@@ -1,4 +1,4 @@
-import { useNavigate } from "react-router-dom";
+﻿import { useNavigate } from "react-router-dom";
 import {
     FiGrid,
     FiUsers,
@@ -24,7 +24,7 @@ const menu = [
     { id: "settings",   label: "Settings",   icon: FiSettings },
 ];
 
-export default function Sidebar({ activePage, setActivePage }) {
+export default function Sidebar({ activePage, setActivePage, isOpen = false }) {
     const navigate = useNavigate();
 
     const handleLogout = () => {
@@ -34,22 +34,15 @@ export default function Sidebar({ activePage, setActivePage }) {
     };
 
     return (
-        <aside className="flex w-64 flex-shrink-0 flex-col border-r border-[var(--border-color)] dark:border-zinc-800 bg-[var(--sidebar-bg)] dark:bg-zinc-950 transition-colors duration-200">
-            {/* Logo */}
-            <div className="border-b border-[var(--border-color)] dark:border-zinc-800 p-6">
-                <div className="flex items-center gap-2">
-                    <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-gradient-to-br from-violet-600 to-indigo-600">
-                        <span className="text-sm font-bold text-white">T</span>
-                    </div>
-                    <div>
-                        <h1 className="text-lg font-bold text-[var(--title-color)] dark:text-zinc-50">Task It</h1>
-                        <p className="text-xs text-[var(--subtitle-color)] dark:text-zinc-400">Team Workspace</p>
-                    </div>
+        <aside className={`fixed inset-y-0 left-0 z-40 flex w-64 flex-shrink-0 flex-col border-r border-[var(--border-color)] bg-[var(--sidebar-bg)] transition-transform duration-200 lg:static lg:translate-x-0 ${isOpen ? "translate-x-0" : "-translate-x-full"}`}>
+            <div className="border-b border-[var(--border-color)] px-4 py-6">
+                <div className="min-w-0">
+                    <h1 className="truncate text-xl font-bold text-[var(--title-color)]">Task It</h1>
+                    <p className="mt-1 text-sm text-[var(--subtitle-color)]">Team Workspace</p>
                 </div>
             </div>
 
-            {/* Nav */}
-            <nav className="flex-1 overflow-y-auto p-3">
+            <nav className="flex-1 overflow-y-auto px-3 py-4">
                 {menu.map((item) => {
                     const Icon = item.icon;
                     const isActive = activePage === item.id;
@@ -58,29 +51,34 @@ export default function Sidebar({ activePage, setActivePage }) {
                             key={item.id}
                             id={`nav-${item.id}`}
                             onClick={() => setActivePage(item.id)}
-                            className={`mb-1 flex w-full items-center gap-3 rounded-xl px-4 py-2.5 text-sm font-medium transition
+                            className={`relative mb-1 flex h-9 w-full items-center gap-3 rounded-md px-3 text-sm font-medium transition
                                 ${isActive
-                                    ? "bg-violet-600 text-white shadow-sm dark:bg-zinc-800 dark:text-white"
-                                    : "text-[var(--nav-inactive)] dark:text-zinc-400 hover:bg-gray-100 dark:hover:bg-zinc-900 hover:text-[var(--title-color)] dark:hover:text-zinc-50"
+                                    ? "bg-[var(--nav-active-bg)] text-[var(--nav-active-text)]"
+                                    : "text-[var(--nav-inactive)] hover:bg-[var(--hover-bg)] hover:text-[var(--title-color)]"
                                 }`}
                         >
-                            <Icon size={17} />
+                            <Icon size={16} />
                             {item.label}
                         </button>
                     );
                 })}
             </nav>
 
-            {/* Logout */}
-            <div className="border-t border-[var(--border-color)] dark:border-zinc-800 p-3">
+            <div className="border-t border-[var(--border-color)] p-3">
                 <button
                     onClick={handleLogout}
-                    className="flex w-full items-center gap-3 rounded-xl px-4 py-2.5 text-sm font-medium text-[var(--nav-inactive)] dark:text-zinc-400 hover:bg-red-50 dark:hover:bg-zinc-900 hover:text-red-500 dark:hover:text-red-400 transition"
+                    className="flex h-9 w-full items-center gap-3 rounded-md px-3 text-sm font-medium text-[var(--nav-inactive)] transition hover:bg-[var(--hover-bg)] hover:text-red-500"
                 >
-                    <FiLogOut size={17} />
+                    <FiLogOut size={16} />
                     Logout
                 </button>
             </div>
         </aside>
     );
 }
+
+
+
+
+
+

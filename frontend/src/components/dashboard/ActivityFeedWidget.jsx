@@ -1,22 +1,21 @@
-import React from 'react';
-import { formatDistanceToNow } from 'date-fns';
+﻿import { formatDistanceToNow } from 'date-fns';
 import { FiClock, FiActivity } from 'react-icons/fi';
 
 export default function ActivityFeedWidget({ activities }) {
     if (!activities || activities.length === 0) {
         return (
-            <div className="bg-white p-6 rounded-2xl border shadow-sm">
-                <h3 className="text-lg font-bold text-gray-900 mb-4">Activity Feed</h3>
-                <p className="text-gray-500 text-sm">No recent activity.</p>
+            <div className="ui-card p-5">
+                <h3 className="mb-4 text-lg font-semibold text-[var(--title-color)]">Activity Feed</h3>
+                <p className="text-sm text-[var(--subtitle-color)]">No recent activity.</p>
             </div>
         );
     }
 
     return (
-        <div className="bg-white p-6 rounded-2xl border shadow-sm flex flex-col h-full">
+        <div className="ui-card flex h-full flex-col p-5">
             <div className="flex items-center gap-2 mb-4">
-                <FiActivity className="text-gray-400" />
-                <h3 className="text-lg font-bold text-gray-900">Activity Feed</h3>
+                <FiActivity className="text-[var(--muted-color)]" />
+                <h3 className="text-lg font-semibold text-[var(--title-color)]">Activity Feed</h3>
             </div>
             
             <div className="flex-1 overflow-y-auto pr-2">
@@ -24,17 +23,17 @@ export default function ActivityFeedWidget({ activities }) {
                     {activities.map((activity) => (
                         <div key={activity.id} className="flex gap-4 relative">
                             {/* Timeline line */}
-                            <div className="absolute left-[11px] top-6 bottom-[-16px] w-[2px] bg-gray-100 last:hidden"></div>
+                            <div className="absolute left-[11px] top-6 bottom-[-16px] w-px bg-[var(--border-color)] last:hidden"></div>
                             
-                            <div className="relative z-10 flex items-center justify-center w-6 h-6 rounded-full bg-blue-50 border border-blue-200 mt-1">
-                                <div className="w-2 h-2 rounded-full bg-blue-500"></div>
+                            <div className="relative z-10 mt-1 flex h-6 w-6 items-center justify-center rounded-full border border-[var(--border-color)] bg-[var(--surface-card)]">
+                                <div className="h-2 w-2 rounded-full bg-[var(--accent)]"></div>
                             </div>
                             
                             <div className="flex-1 pb-1">
-                                <p className="text-sm text-gray-900">
-                                    <span className="font-semibold">{activity.actionBy}</span> updated task <span className="font-medium text-blue-600">"{activity.title}"</span> to <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-800">{activity.status}</span>
+                                <p className="text-sm text-[var(--title-color)]">
+                                    <span className="font-semibold">{activity.actionBy}</span> updated task <span className="font-medium text-[var(--title-color)]">"{activity.title}"</span> to <span className="ui-badge badge-neutral">{activity.status}</span>
                                 </p>
-                                <div className="flex items-center gap-1 mt-1 text-xs text-gray-500">
+                                <div className="mt-1 flex items-center gap-1 text-xs text-[var(--subtitle-color)]">
                                     <FiClock />
                                     <span>{formatDistanceToNow(new Date(activity.updatedAt), { addSuffix: true })}</span>
                                 </div>
@@ -46,3 +45,10 @@ export default function ActivityFeedWidget({ activities }) {
         </div>
     );
 }
+
+
+
+
+
+
+

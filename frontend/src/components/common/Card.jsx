@@ -1,7 +1,13 @@
-export default function Card({ children }) {
+﻿export default function Card({ children }) {
   return (
-    <div className="w-full max-w-sm rounded-2xl border border-gray-200 bg-white p-12 shadow-sm text-gray-900">
+    <div className="ui-card w-full max-w-sm p-8 sm:p-10">
       {children}
     </div>
   );
 }
+
+
+
+
+
+

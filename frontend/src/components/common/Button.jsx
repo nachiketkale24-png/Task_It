@@ -1,26 +1,29 @@
-export default function Button({
+﻿export default function Button({
   children,
   type = "button",
   onClick,
+  variant = "primary",
+  className = "",
 }) {
+  const variants = {
+    primary: "ui-button-primary",
+    secondary: "ui-button-secondary",
+    danger: "ui-button-danger",
+  };
+
   return (
     <button
       type={type}
       onClick={onClick}
-      className="
-        w-full
-        rounded-xl
-        bg-gray-900
-        py-3
-        text-white
-        font-medium
-        transition-all
-        duration-200
-        hover:bg-black
-        active:scale-[0.98]
-      "
+      className={`ui-button w-full ${variants[variant] || variants.primary} ${className}`}
     >
       {children}
     </button>
   );
 }
+
+
+
+
+
+

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+﻿import { useEffect, useState } from "react";
 import { FiX } from "react-icons/fi";
 import Input from "../common/Input";
 
@@ -74,12 +74,12 @@ export default function TaskFormModal({ isOpen, onClose, onSubmit, task, users }
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm">
-            <div className="w-full max-w-lg rounded-2xl bg-white p-6 shadow-xl border border-gray-100">
+            <div className="w-full max-w-lg rounded-lg bg-[var(--surface-card)] p-6  border border-[var(--border-color)]">
                 <div className="flex items-center justify-between border-b pb-4">
-                    <h2 className="text-xl font-semibold text-gray-900">
+                    <h2 className="text-xl font-semibold text-[var(--title-color)]">
                         {task ? "Edit Task" : "Create New Task"}
                     </h2>
-                    <button onClick={onClose} className="rounded-lg p-1 text-gray-400 hover:bg-gray-100 hover:text-black">
+                    <button onClick={onClose} className="rounded-lg p-1 text-[var(--muted-color)] hover:bg-[var(--hover-bg)] hover:text-[var(--title-color)]">
                         <FiX size={20} />
                     </button>
                 </div>
@@ -94,7 +94,7 @@ export default function TaskFormModal({ isOpen, onClose, onSubmit, task, users }
                     />
 
                     <div>
-                        <label className="text-sm font-medium text-gray-700 block mb-1">
+                        <label className="text-sm font-medium text-[var(--title-color)] block mb-1">
                             Description
                         </label>
                         <textarea
@@ -103,20 +103,20 @@ export default function TaskFormModal({ isOpen, onClose, onSubmit, task, users }
                             onChange={handleChange}
                             placeholder="Add task details..."
                             rows="3"
-                            className="w-full rounded-xl border border-gray-300 bg-white text-gray-900 placeholder:text-gray-400 px-4 py-3 outline-none focus:border-black focus:ring-2 focus:ring-gray-200 transition"
+                            className="w-full rounded-md border border-[var(--border-color)] bg-[var(--surface-card)] text-[var(--title-color)] placeholder:text-[var(--muted-color)] px-4 py-3 outline-none focus:border-[var(--title-color)] focus:ring-2 focus:ring-gray-200 focus:ring-2 focus:ring-gray-200 transition"
                         />
                     </div>
 
                     <div className="grid grid-cols-2 gap-4">
                         <div>
-                            <label className="text-sm font-medium text-gray-700 block mb-1">
+                            <label className="text-sm font-medium text-[var(--title-color)] block mb-1">
                                 Priority
                             </label>
                             <select
                                 name="priority"
                                 value={formData.priority}
                                 onChange={handleChange}
-                                className="w-full rounded-xl border border-gray-300 bg-white text-gray-900 px-4 py-3 outline-none focus:border-black transition"
+                                className="w-full rounded-md border border-[var(--border-color)] bg-[var(--surface-card)] text-[var(--title-color)] px-4 py-3 outline-none focus:border-[var(--title-color)] focus:ring-2 focus:ring-gray-200 transition"
                             >
                                 <option value="Low">Low</option>
                                 <option value="Medium">Medium</option>
@@ -126,14 +126,14 @@ export default function TaskFormModal({ isOpen, onClose, onSubmit, task, users }
                         </div>
 
                         <div>
-                            <label className="text-sm font-medium text-gray-700 block mb-1">
+                            <label className="text-sm font-medium text-[var(--title-color)] block mb-1">
                                 Status
                             </label>
                             <select
                                 name="status"
                                 value={formData.status}
                                 onChange={handleChange}
-                                className="w-full rounded-xl border border-gray-300 bg-white text-gray-900 px-4 py-3 outline-none focus:border-black transition"
+                                className="w-full rounded-md border border-[var(--border-color)] bg-[var(--surface-card)] text-[var(--title-color)] px-4 py-3 outline-none focus:border-[var(--title-color)] focus:ring-2 focus:ring-gray-200 transition"
                             >
                                 <option value="Pending">Pending</option>
                                 <option value="In Progress">In Progress</option>
@@ -152,14 +152,14 @@ export default function TaskFormModal({ isOpen, onClose, onSubmit, task, users }
                         />
 
                         <div>
-                            <label className="text-sm font-medium text-gray-700 block mb-1">
+                            <label className="text-sm font-medium text-[var(--title-color)] block mb-1">
                                 Assignee
                             </label>
                             <select
                                 name="assignee"
                                 value={formData.assignee}
                                 onChange={handleChange}
-                                className="w-full rounded-xl border border-gray-300 bg-white text-gray-900 px-4 py-3 outline-none focus:border-black transition"
+                                className="w-full rounded-md border border-[var(--border-color)] bg-[var(--surface-card)] text-[var(--title-color)] px-4 py-3 outline-none focus:border-[var(--title-color)] focus:ring-2 focus:ring-gray-200 transition"
                             >
                                 <option value="">Unassigned</option>
                                 {users.map((u) => (
@@ -177,14 +177,14 @@ export default function TaskFormModal({ isOpen, onClose, onSubmit, task, users }
                         <button
                             type="button"
                             onClick={onClose}
-                            className="rounded-xl border border-gray-300 px-4 py-3 hover:bg-gray-50 transition"
+                            className="rounded-md border border-[var(--border-color)] px-4 py-3 hover:bg-[var(--surface-muted)] transition"
                         >
                             Cancel
                         </button>
                         <button
                             type="submit"
                             disabled={loading}
-                            className="rounded-xl bg-black px-6 py-3 text-white hover:bg-gray-800 disabled:opacity-60 transition"
+                            className="rounded-md bg-[var(--accent)] px-6 py-3 text-[var(--accent-contrast)] hover:bg-[var(--accent-hover)] disabled:opacity-60 transition"
                         >
                             {loading ? "Saving..." : task ? "Update Task" : "Create Task"}
                         </button>
@@ -194,3 +194,9 @@ export default function TaskFormModal({ isOpen, onClose, onSubmit, task, users }
         </div>
     );
 }
+
+
+
+
+
+

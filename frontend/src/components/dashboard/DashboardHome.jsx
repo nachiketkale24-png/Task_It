@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+﻿import { useState, useEffect } from "react";
 import { getDashboardStats } from "../../services/dashboardService";
 
 import StatCards from "./StatCards";
@@ -32,15 +32,15 @@ export default function DashboardHome() {
     if (loading) {
         return (
             <div className="flex items-center justify-center h-full p-10">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900"></div>
+                <div className="h-8 w-8 animate-spin rounded-full border-2 border-[var(--border-color)] border-t-[var(--title-color)]"></div>
             </div>
         );
     }
 
     if (error) {
         return (
-            <div className="p-10">
-                <div className="bg-red-50 text-red-600 p-4 rounded-xl border border-red-200">
+            <div className="app-page">
+                <div className="rounded-lg border border-red-200 bg-red-50 p-4 text-red-600 dark:border-red-900/60 dark:bg-red-950/30 dark:text-red-300">
                     {error}
                 </div>
             </div>
@@ -50,18 +50,19 @@ export default function DashboardHome() {
     if (!dashboardData) return null;
 
     return (
-        <div className="p-8 max-w-7xl mx-auto">
+        <div className="app-page">
 
-            <div className="mb-8">
-                <h1 className="text-3xl font-bold text-gray-900">
-                    Dashboard Overview
+            <div className="page-header">
+                <div>
+                <h1 className="page-title">
+                    Welcome Back 👋
                 </h1>
-                <p className="mt-2 text-gray-500">
+                <p className="page-description">
                     Here's what's happening in your workspace today.
                 </p>
+                </div>
             </div>
 
-            {/* Top Stats Row */}
             <div className="mb-8">
                 <StatCards stats={dashboardData.totalStats} />
             </div>
@@ -84,3 +85,9 @@ export default function DashboardHome() {
         </div>
     );
 }
+
+
+
+
+
+
