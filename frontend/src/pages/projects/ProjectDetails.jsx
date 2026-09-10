@@ -117,6 +117,26 @@ const ProjectDetails = () => {
           </span>
         </div>
 
+        <div className="border rounded-lg p-6 bg-[var(--surface-card)] md:col-span-2">
+          <div className="mb-2 flex items-center justify-between">
+            <h2 className="text-sm text-[var(--subtitle-color)]">
+              Progress
+            </h2>
+            <span className="text-sm font-semibold text-[var(--title-color)]">
+              {project.progress || 0}%
+            </span>
+          </div>
+          <div className="h-2 overflow-hidden rounded-full bg-[var(--hover-bg)]">
+            <div
+              className="h-full rounded-full bg-[var(--title-color)]"
+              style={{ width: `${project.progress || 0}%` }}
+            />
+          </div>
+          <p className="mt-2 text-xs text-[var(--subtitle-color)]">
+            {project.completedTasks || 0} of {project.totalTasks || 0} tasks completed
+          </p>
+        </div>
+
         {/* Priority */}
         <div className="border rounded-lg p-6 bg-[var(--surface-card)] ">
           <h2 className="text-sm text-[var(--subtitle-color)] mb-2">

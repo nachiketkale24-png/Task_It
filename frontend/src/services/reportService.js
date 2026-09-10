@@ -1,57 +1,41 @@
-﻿import axios from 'axios';
+import api from './api';
 
-const API_BASE = 'http://localhost:5000/api/reports';
+export const getProjectReport = () => api.get('/reports/projects');
 
-const getAuthHeaders = () => ({
-    headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
-});
+export const getTeamReport = () => api.get('/reports/teams');
 
-export const getProjectReport = () =>
-    axios.get(`${API_BASE}/projects`, getAuthHeaders());
-
-export const getTeamReport = () =>
-    axios.get(`${API_BASE}/teams`, getAuthHeaders());
-
-export const getInternReport = () =>
-    axios.get(`${API_BASE}/interns`, getAuthHeaders());
+export const getInternReport = () => api.get('/reports/interns');
 
 export const getMonthlyReport = (month) =>
-    axios.get(`${API_BASE}/monthly${month ? `?month=${month}` : ''}`, getAuthHeaders());
+  api.get('/reports/monthly', { params: month ? { month } : {} });
 
-export const getCompletedTasksReport = () =>
-    axios.get(`${API_BASE}/completed-tasks`, getAuthHeaders());
+export const getCompletedTasksReport = () => api.get('/reports/completed-tasks');
 
-export const getDelayedTasksReport = () =>
-    axios.get(`${API_BASE}/delayed-tasks`, getAuthHeaders());
+export const getDelayedTasksReport = () => api.get('/reports/delayed-tasks');
 
-// ── Export helpers ──────────────────────────────────────────────────────────
 const downloadBlob = async (url, filename) => {
-    const token = localStorage.getItem('token');
-    const response = await fetch(url, {
-        headers: { Authorization: `Bearer ${token}` },
-    });
-    if (!response.ok) throw new Error('Export failed');
-    const blob = await response.blob();
-    const link = document.createElement('a');
-    link.href = URL.createObjectURL(blob);
-    link.download = filename;
-    link.click();
-    URL.revokeObjectURL(link.href);
+  const response = await api.get(url, { responseType: 'blob' });
+  const blob = response.data;
+  const link = document.createElement('a');
+  link.href = URL.createObjectURL(blob);
+  link.download = filename;
+  link.click();
+  URL.revokeObjectURL(link.href);
 };
 
 export const exportReport = async (reportKey, exportType, month = null) => {
-    const endpoints = {
-        projects: `${API_BASE}/projects`,
-        teams: `${API_BASE}/teams`,
-        interns: `${API_BASE}/interns`,
-        monthly: `${API_BASE}/monthly`,
-        completedTasks: `${API_BASE}/completed-tasks`,
-        delayedTasks: `${API_BASE}/delayed-tasks`,
-    };
+  const endpoints = {
+    projects: '/reports/projects',
+    teams: '/reports/teams',
+    interns: '/reports/interns',
+    monthly: '/reports/monthly',
+    completedTasks: '/reports/completed-tasks',
+    delayedTasks: '/reports/delayed-tasks',
+  };
 
-    const ext = exportType === 'pdf' ? 'pdf' : 'xlsx';
-    let url = `${endpoints[reportKey]}?export=${exportType}`;
-    if (reportKey === 'monthly' && month) url += `&month=${month}`;
+  const ext = exportType === 'pdf' ? 'pdf' : 'xlsx';
+  let url = `${endpoints[reportKey]}?export=${exportType}`;
+  if (reportKey === 'monthly' && month) url += `&month=${month}`;
 
-    await downloadBlob(url, `${reportKey}_report.${ext}`);
+  await downloadBlob(url, `${reportKey}_report.${ext}`);
 };

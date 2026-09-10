@@ -1,14 +1,6 @@
-import axios from 'axios';
+import api from './api';
 
-const API = axios.create({ baseURL: 'http://localhost:5000/api' });
-
-API.interceptors.request.use((config) => {
-  const token = localStorage.getItem('token');
-  if (token) config.headers.Authorization = `Bearer ${token}`;
-  return config;
-});
-
-export const getNotifications = () => API.get('/notifications');
-export const markRead = (id) => API.put(`/notifications/${id}/read`);
-export const markAllRead = () => API.put('/notifications/read-all');
-export const deleteNotification = (id) => API.delete(`/notifications/${id}`);
+export const getNotifications = () => api.get('/notifications');
+export const markRead = (id) => api.put(`/notifications/${id}/read`);
+export const markAllRead = () => api.put('/notifications/read-all');
+export const deleteNotification = (id) => api.delete(`/notifications/${id}`);

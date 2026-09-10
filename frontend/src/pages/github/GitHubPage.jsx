@@ -203,7 +203,7 @@ export default function GitHubPage() {
     setActiveTab("commits");
     setLoading(true);
     try {
-      const res = await getRepoInfo(project.githubRepo);
+      const res = await getRepoInfo(project.githubRepo, project._id);
       setRepoData(res.data.data);
     } catch (e) {
       setFetchError(e.response?.data?.message || "Failed to load repository data.");

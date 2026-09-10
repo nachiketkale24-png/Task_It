@@ -17,6 +17,7 @@ function Login() {
 
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
+  const [submitError, setSubmitError] = useState("");
 
   const handleChange = (e) => {
     setFormData({
@@ -28,6 +29,7 @@ function Login() {
       ...errors,
       [e.target.name]: "",
     });
+    setSubmitError("");
   };
 
   const validate = () => {
@@ -70,11 +72,9 @@ function Login() {
         JSON.stringify(response.data.data)
       );
 
-      alert(response.data.message || "Login Successful!");
-
       navigate("/dashboard");
     } catch (error) {
-      alert(
+      setSubmitError(
         error.response?.data?.message ||
           "Invalid email or password."
       );
@@ -168,7 +168,13 @@ function Login() {
               </Link>
             </div>
 
-            <Button type="submit">
+            {submitError && (
+              <p className="rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
+                {submitError}
+              </p>
+            )}
+
+            <Button type="submit" disabled={loading}>
               {loading ? "Signing In..." : "Sign In"}
             </Button>
           </form>

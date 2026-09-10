@@ -1,4 +1,5 @@
-﻿import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { FiBell, FiCheck, FiCheckSquare, FiTrash2, FiX } from 'react-icons/fi';
 import { getNotifications, markRead, markAllRead, deleteNotification } from '../../services/notificationService';
 
@@ -13,6 +14,7 @@ function timeAgo(dateStr) {
 }
 
 export default function NotificationBell() {
+  const navigate = useNavigate();
   const [open, setOpen] = useState(false);
   const [notifications, setNotifications] = useState([]);
   const [unread, setUnread] = useState(0);
@@ -34,12 +36,10 @@ export default function NotificationBell() {
 
   useEffect(() => {
     fetchNotifications();
-    // Poll every 30 seconds for new notifications
     const interval = setInterval(fetchNotifications, 30000);
     return () => clearInterval(interval);
   }, []);
 
-  // Close on outside click
   useEffect(() => {
     const handler = (e) => {
       if (panelRef.current && !panelRef.current.contains(e.target)) {
@@ -83,13 +83,28 @@ export default function NotificationBell() {
     }
   };
 
+  const handleOpenNotification = async (notification) => {
+    if (!notification.read) {
+      await handleMarkRead(notification._id);
+    }
+
+    if (notification.link) {
+      try {
+        const url = new URL(notification.link);
+        navigate(url.pathname);
+      } catch {
+        navigate(notification.link);
+      }
+      setOpen(false);
+    }
+  };
+
   return (
     <div className="relative" ref={panelRef}>
-      {/* Bell Button */}
       <button
         id="notification-bell-btn"
         onClick={() => setOpen((o) => !o)}
-        className="relative flex h-9 w-9 items-center justify-center rounded-md text-[var(--subtitle-color)] dark:text-[var(--muted-color)] hover:bg-[var(--hover-bg)] dark:hover:bg-[var(--hover-bg)] transition"
+        className="relative flex h-9 w-9 items-center justify-center rounded-md text-[var(--subtitle-color)] transition hover:bg-[var(--hover-bg)] dark:text-[var(--muted-color)] dark:hover:bg-[var(--hover-bg)]"
         aria-label="Notifications"
       >
         <FiBell size={20} />
@@ -100,14 +115,12 @@ export default function NotificationBell() {
         )}
       </button>
 
-      {/* Dropdown Panel */}
       {open && (
-        <div className="absolute right-0 top-11 z-50 w-96 rounded-lg border border-[var(--border-color)] dark:border-gray-800 bg-[var(--surface-card)] dark:bg-gray-900 ">
-          {/* Header */}
-          <div className="flex items-center justify-between border-b border-[var(--border-color)] dark:border-gray-800 px-5 py-3">
+        <div className="absolute right-0 top-11 z-50 w-96 rounded-lg border border-[var(--border-color)] bg-[var(--surface-card)] dark:border-gray-800 dark:bg-gray-900">
+          <div className="flex items-center justify-between border-b border-[var(--border-color)] px-5 py-3 dark:border-gray-800">
             <div className="flex items-center gap-2">
               <FiBell size={16} className="text-[var(--title-color)]" />
-              <h3 className="font-semibold text-[var(--title-color)] dark:text-[var(--title-color)]">Notifications</h3>
+              <h3 className="font-semibold text-[var(--title-color)]">Notifications</h3>
               {unread > 0 && (
                 <span className="rounded-full bg-red-100 px-2 py-0.5 text-xs font-semibold text-red-600">
                   {unread} new
@@ -118,7 +131,7 @@ export default function NotificationBell() {
               {unread > 0 && (
                 <button
                   onClick={handleMarkAllRead}
-                  className="flex items-center gap-1 rounded-lg px-2 py-1 text-xs text-[var(--title-color)] hover:bg-[var(--surface-muted)] transition"
+                  className="flex items-center gap-1 rounded-lg px-2 py-1 text-xs text-[var(--title-color)] transition hover:bg-[var(--surface-muted)]"
                   title="Mark all as read"
                 >
                   <FiCheckSquare size={12} />
@@ -127,14 +140,13 @@ export default function NotificationBell() {
               )}
               <button
                 onClick={() => setOpen(false)}
-                className="rounded-lg p-1 text-[var(--muted-color)] dark:text-[var(--subtitle-color)] hover:bg-[var(--hover-bg)] dark:hover:bg-[var(--hover-bg)] transition"
+                className="rounded-lg p-1 text-[var(--muted-color)] transition hover:bg-[var(--hover-bg)] dark:text-[var(--subtitle-color)]"
               >
                 <FiX size={14} />
               </button>
             </div>
           </div>
 
-          {/* List */}
           <div className="max-h-96 overflow-y-auto">
             {loading && (
               <div className="flex justify-center py-8">
@@ -153,52 +165,50 @@ export default function NotificationBell() {
               notifications.map((n) => (
                 <div
                   key={n._id}
-                  className={`group flex gap-3 border-b border-gray-50 dark:border-gray-800 px-4 py-3 transition hover:bg-[var(--surface-muted)]/70 dark:hover:bg-[var(--hover-bg)] ${
+                  onClick={() => handleOpenNotification(n)}
+                  className={`group flex cursor-pointer gap-3 border-b border-gray-50 px-4 py-3 transition hover:bg-[var(--surface-muted)]/70 dark:border-gray-800 dark:hover:bg-[var(--hover-bg)] ${
                     !n.read ? 'bg-[var(--surface-muted)]' : ''
                   }`}
                 >
-                  {/* Icon */}
-                  <span className="mt-2 h-2 w-2 flex-shrink-0 rounded-full bg-[var(--accent)]" />
+                  <span className="mt-2 h-2 w-2 flex-shrink-0 rounded-full bg-[var(--title-color)]" />
 
-                  {/* Content */}
-                  <div className="flex-1 min-w-0">
-                    <p className={`text-sm leading-snug ${!n.read ? 'font-medium text-[var(--title-color)] dark:text-[var(--title-color)]' : 'text-[var(--subtitle-color)] dark:text-[var(--muted-color)]'}`}>
+                  <div className="min-w-0 flex-1">
+                    <p className={`text-sm leading-snug ${!n.read ? 'font-medium text-[var(--title-color)]' : 'text-[var(--subtitle-color)] dark:text-[var(--muted-color)]'}`}>
                       {n.message}
                     </p>
                     <p className="mt-0.5 text-xs text-[var(--muted-color)]">{timeAgo(n.createdAt)}</p>
                   </div>
 
-                  {/* Actions */}
-                  <div className="flex items-start gap-1 opacity-0 group-hover:opacity-100 transition">
+                  <div className="flex items-start gap-1 opacity-0 transition group-hover:opacity-100">
                     {!n.read && (
                       <button
-                        onClick={() => handleMarkRead(n._id)}
-                        className="rounded-lg p-1 text-[var(--title-color)] hover:bg-[var(--hover-bg)] transition"
+                        onClick={(event) => {
+                          event.stopPropagation();
+                          handleMarkRead(n._id);
+                        }}
+                        className="rounded-lg p-1 text-[var(--title-color)] transition hover:bg-[var(--hover-bg)]"
                         title="Mark as read"
                       >
                         <FiCheck size={13} />
                       </button>
                     )}
                     <button
-                      onClick={() => handleDelete(n._id)}
-                      className="rounded-lg p-1 text-red-400 hover:bg-red-50 transition"
+                      onClick={(event) => {
+                        event.stopPropagation();
+                        handleDelete(n._id);
+                      }}
+                      className="rounded-lg p-1 text-red-400 transition hover:bg-red-50"
                       title="Delete"
                     >
                       <FiTrash2 size={13} />
                     </button>
                   </div>
-
-                  {/* Unread dot */}
-                  {!n.read && (
-                    <div className="mt-2 h-2 w-2 flex-shrink-0 rounded-full bg-[var(--surface-muted)]0" />
-                  )}
                 </div>
               ))}
           </div>
 
-          {/* Footer */}
           {notifications.length > 0 && (
-            <div className="border-t border-[var(--border-color)] dark:border-gray-800 px-5 py-2.5 text-center">
+            <div className="border-t border-[var(--border-color)] px-5 py-2.5 text-center dark:border-gray-800">
               <p className="text-xs text-[var(--muted-color)]">
                 Showing {notifications.length} notification{notifications.length !== 1 ? 's' : ''}
               </p>
@@ -209,9 +219,3 @@ export default function NotificationBell() {
     </div>
   );
 }
-
-
-
-
-
-

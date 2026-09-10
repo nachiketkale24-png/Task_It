@@ -9,6 +9,43 @@ const {
 
 const PROJECT_MANAGERS = [ROLE.OWNER, ROLE.TEAM_LEAD];
 
+const attachProjectProgress = async (projects) => {
+  const projectList = Array.isArray(projects) ? projects : [projects];
+  const projectIds = projectList.map((project) => project._id);
+  const counts = await Task.aggregate([
+    { $match: { project: { $in: projectIds } } },
+    {
+      $group: {
+        _id: '$project',
+        totalTasks: { $sum: 1 },
+        completedTasks: {
+          $sum: { $cond: [{ $eq: ['$status', 'Completed'] }, 1, 0] },
+        },
+      },
+    },
+  ]);
+
+  const countMap = counts.reduce((acc, item) => {
+    acc[item._id.toString()] = item;
+    return acc;
+  }, {});
+
+  const withProgress = projectList.map((project) => {
+    const plain = typeof project.toObject === 'function' ? project.toObject() : project;
+    const count = countMap[plain._id.toString()] || { totalTasks: 0, completedTasks: 0 };
+    const progress =
+      count.totalTasks === 0 ? 0 : Math.round((count.completedTasks / count.totalTasks) * 100);
+    return {
+      ...plain,
+      totalTasks: count.totalTasks,
+      completedTasks: count.completedTasks,
+      progress,
+    };
+  });
+
+  return Array.isArray(projects) ? withProgress : withProgress[0];
+};
+
 const createProject = async (data, userId) => {
   if (!data.team) {
     throw new Error('Team is required to create a project');
@@ -38,14 +75,26 @@ const getAllProjects = async (userId, filters = {}) => {
     delete query.$or;
   }
 
-  return await Project.find(query)
+  if (filters.status) {
+    query.status = filters.status;
+  }
+
+  if (filters.search) {
+    query.projectName = { $regex: filters.search, $options: 'i' };
+  }
+
+  const sort = filters.sort === 'deadline' ? { deadline: 1, createdAt: -1 } : { createdAt: -1 };
+
+  const projects = await Project.find(query)
     .populate('owner', 'fullName email')
     .populate({
       path: 'team',
       select: 'teamName owner members',
       populate: { path: 'members.user', select: 'fullName email role' },
     })
-    .sort({ createdAt: -1 });
+    .sort(sort);
+
+  return await attachProjectProgress(projects);
 };
 
 const getProjectById = async (projectId, userId) => {
@@ -69,6 +118,7 @@ const getProjectById = async (projectId, userId) => {
 
   return {
     ...projectDetails.toObject(),
+    ...(await attachProjectProgress(projectDetails)),
     tasks,
   };
 };
@@ -100,8 +150,8 @@ const deleteProject = async (projectId, userId) => {
 
   const taskCount = await Task.countDocuments({ project: project._id });
   if (taskCount > 0) {
-    const error = new Error('Delete this project tasks before deleting the project');
-    error.statusCode = 400;
+    const error = new Error('Cannot delete project while tasks exist.');
+    error.statusCode = 409;
     throw error;
   }
 

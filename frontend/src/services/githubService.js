@@ -1,16 +1,8 @@
-import axios from "axios";
+import api from "./api";
 
-const API = axios.create({ baseURL: "http://localhost:5000/api" });
-
-API.interceptors.request.use((config) => {
-    const token = localStorage.getItem("token");
-    if (token) config.headers.Authorization = `Bearer ${token}`;
-    return config;
-});
-
-export const getLinkedProjects = () => API.get("/github/projects");
-export const getAllProjects = () => API.get("/github/all-projects");
+export const getLinkedProjects = () => api.get("/github/projects");
+export const getAllProjects = () => api.get("/github/all-projects");
 export const setProjectRepo = (projectId, githubRepo) =>
-    API.put(`/github/projects/${projectId}/repo`, { githubRepo });
-export const getRepoInfo = (url) =>
-    API.get("/github/repo-info", { params: { url } });
+    api.put(`/github/projects/${projectId}/repo`, { githubRepo });
+export const getRepoInfo = (url, projectId) =>
+    api.get("/github/repo-info", { params: { url, projectId } });

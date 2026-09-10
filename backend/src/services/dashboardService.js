@@ -1,12 +1,15 @@
 const Task = require('../models/Task');
 const Team = require('../models/Team');
+const Project = require('../models/Project');
 const { getAccessibleProjectsByRole } = require('../utils/rbac');
 
 const getDashboardStats = async (userId) => {
     // 1. Total Stats
     const { managerProjectIds, internProjectIds } = await getAccessibleProjectsByRole(userId);
     const accessibleProjectIds = [...managerProjectIds, ...internProjectIds];
-    const totalProjects = accessibleProjectIds.length;
+    const projects = await Project.find({ _id: { $in: accessibleProjectIds } }).select('projectName status deadline');
+    const totalProjects = projects.length;
+    const activeProjects = projects.filter((project) => project.status !== 'Completed').length;
     
     // Find teams where user is owner or member
     const teams = await Team.find({
@@ -78,6 +81,24 @@ const getDashboardStats = async (userId) => {
 
     const memberWorkload = Object.values(memberWorkloadMap);
 
+    const overdueCount = overdueTasks.length;
+    const upcomingCount = upcomingDeadlines.length;
+    const completedTasks = taskStatus.Completed;
+    const activeTasks = totalTasks - completedTasks;
+    const projectProgress = projects.map((project) => {
+        const projectTasks = tasks.filter((task) => task.project?.toString?.() === project._id.toString() || task.project?._id?.toString?.() === project._id.toString());
+        const completed = projectTasks.filter((task) => task.status === 'Completed').length;
+        return {
+            id: project._id,
+            name: project.projectName,
+            status: project.status,
+            deadline: project.deadline,
+            totalTasks: projectTasks.length,
+            completedTasks: completed,
+            progress: projectTasks.length === 0 ? 0 : Math.round((completed / projectTasks.length) * 100),
+        };
+    });
+
     // 4. Activity Feed (Top 10 recently updated tasks)
     const activityFeed = tasks.slice(0, 10).map(task => ({
         id: task._id,
@@ -97,12 +118,20 @@ const getDashboardStats = async (userId) => {
     return {
         totalStats: {
             projects: totalProjects,
+            activeProjects,
             teams: totalTeams,
-            tasks: totalTasks
+            tasks: totalTasks,
+            activeTasks,
+            completedTasks,
+            pendingTasks: taskStatus.Pending,
+            inProgressTasks: taskStatus["In Progress"],
+            overdueTasks: overdueCount,
+            upcomingDeadlines: upcomingCount
         },
         taskStatus: statusChartData,
         overdueTasks: overdueTasks.slice(0, 5), // Top 5
         upcomingDeadlines: upcomingDeadlines.slice(0, 5).sort((a, b) => new Date(a.deadline) - new Date(b.deadline)), // Top 5 soonest
+        projectProgress,
         memberWorkload,
         activityFeed
     };

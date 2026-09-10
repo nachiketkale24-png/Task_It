@@ -1,15 +1,26 @@
 const bcrypt = require("bcrypt");
 const User = require("../models/User");
 const generateToken = require("../utils/generateToken");
+const { SELF_REGISTRATION_ROLES } = require("../validators/authValidator");
+
+const authError = (message, statusCode = 400) => {
+    const error = new Error(message);
+    error.statusCode = statusCode;
+    return error;
+};
 
 // Register
 const registerUser = async (userData) => {
     const { fullName, email, password, role } = userData;
 
-    const existingUser = await User.findOne({ email });
+    if (!SELF_REGISTRATION_ROLES.includes(role)) {
+        throw authError("Invalid registration role", 400);
+    }
+
+    const existingUser = await User.findOne({ email: email?.toLowerCase()?.trim() });
 
     if (existingUser) {
-        throw new Error("User already exists");
+        throw authError("An account with this email already exists", 409);
     }
 
     const salt = await bcrypt.genSalt(10);
@@ -17,7 +28,7 @@ const registerUser = async (userData) => {
 
     const user = await User.create({
         fullName,
-        email,
+        email: email.toLowerCase().trim(),
         password: hashedPassword,
         role,
     });
@@ -30,17 +41,21 @@ const loginUser = async (userData) => {
     const { email, password } = userData;
 
     // Find user
-    const user = await User.findOne({ email });
+    const user = await User.findOne({ email: email?.toLowerCase()?.trim() });
 
     if (!user) {
-        throw new Error("Invalid email or password");
+        throw authError("Invalid email or password", 401);
+    }
+
+    if (user.isActive === false) {
+        throw authError("This account is inactive", 403);
     }
 
     // Compare password
     const isMatch = await bcrypt.compare(password, user.password);
 
     if (!isMatch) {
-        throw new Error("Invalid email or password");
+        throw authError("Invalid email or password", 401);
     }
 
     // Generate JWT

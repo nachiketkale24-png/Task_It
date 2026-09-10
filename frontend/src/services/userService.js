@@ -1,17 +1,9 @@
-import axios from "axios";
+import api from "./api";
 
-const API = axios.create({ baseURL: "http://localhost:5000/api" });
-
-API.interceptors.request.use((config) => {
-    const token = localStorage.getItem("token");
-    if (token) config.headers.Authorization = `Bearer ${token}`;
-    return config;
-});
-
-export const getUsers = () => API.get("/users");
-export const getUser = (id) => API.get(`/users/${id}`);
-export const createUser = (data) => API.post("/users", data);
-export const updateUser = (id, data) => API.put(`/users/${id}`, data);
-export const deleteUser = (id) => API.delete(`/users/${id}`);
-export const assignRole = (id, role) => API.put(`/users/${id}/role`, { role });
-export const toggleActivate = (id) => API.put(`/users/${id}/deactivate`);
+export const getUsers = () => api.get("/users");
+export const getUser = (id) => api.get(`/users/${id}`);
+export const createUser = (data) => api.post("/users", data);
+export const updateUser = (id, data) => api.put(`/users/${id}`, data);
+export const deleteUser = (id) => api.delete(`/users/${id}`);
+export const assignRole = (id, role) => api.put(`/users/${id}/role`, { role });
+export const toggleActivate = (id) => api.put(`/users/${id}/deactivate`);

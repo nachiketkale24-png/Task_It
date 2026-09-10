@@ -14,6 +14,7 @@ const {
 
 const {
   createProjectValidator,
+  updateProjectValidator,
 } = require('../validators/projectValidator');
 
 router.use(protect);
@@ -27,7 +28,7 @@ router.post(
 
 router.get('/', getProjects);
 router.get('/:id', getProject);
-router.put('/:id', createProjectValidator, validate, updateProject);
+router.put('/:id', updateProjectValidator, validate, updateProject);
 router.delete('/:id', deleteProject);
 
 module.exports = router;

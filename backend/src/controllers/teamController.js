@@ -3,6 +3,7 @@ const { validationResult } = require("express-validator");
 const User = require("../models/User");
 const Project = require("../models/Project");
 const { ROLE, normalizeRole, getTeamMembership } = require("../utils/rbac");
+const { createNotification } = require("../services/notificationService");
 
 const TEAM_ROLES = [ROLE.OWNER, ROLE.TEAM_LEAD, ROLE.INTERN];
 
@@ -138,6 +139,13 @@ const updateTeam = async (req, res) => {
     await team.save();
     await team.populate("owner", "fullName email");
     await team.populate("members.user", "fullName email");
+    await createNotification(
+      user._id,
+      "team_invite",
+      `You were added to the team "${team.teamName}".`,
+      team._id,
+      { path: `/teams/${team._id}` }
+    );
 
     res.status(200).json({
       success: true,
@@ -170,9 +178,9 @@ const deleteTeam = async (req, res) => {
 
     const projectCount = await Project.countDocuments({ team: team._id });
     if (projectCount > 0) {
-      return res.status(400).json({
+      return res.status(409).json({
         success: false,
-        message: "Delete or move this team's projects before deleting the team",
+        message: "Cannot delete team while projects exist.",
       });
     }
 
@@ -285,11 +293,20 @@ const removeMember = async (req, res) => {
       });
     }
 
+    const removedUserId = req.params.userId;
+
     team.members = team.members.filter(
       (member) => member.user.toString() !== req.params.userId
     );
 
     await team.save();
+    await createNotification(
+      removedUserId,
+      "team_removed",
+      `You were removed from the team "${team.teamName}".`,
+      team._id,
+      { email: false }
+    );
 
     res.status(200).json({
       success: true,
@@ -348,10 +365,27 @@ const updateMemberRole = async (req, res) => {
       });
     }
 
+    if (normalizeRole(member.role) === normalizedRole) {
+      await team.populate("owner", "fullName email");
+      await team.populate("members.user", "fullName email");
+      return res.status(200).json({
+        success: true,
+        message: "Member role unchanged",
+        data: team,
+      });
+    }
+
     member.role = normalizedRole;
     await team.save();
     await team.populate("owner", "fullName email");
     await team.populate("members.user", "fullName email");
+    await createNotification(
+      req.params.userId,
+      "team_role_changed",
+      `Your role in "${team.teamName}" was changed to ${normalizedRole}.`,
+      team._id,
+      { path: `/teams/${team._id}` }
+    );
 
     res.status(200).json({
       success: true,

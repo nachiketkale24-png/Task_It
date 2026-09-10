@@ -20,19 +20,19 @@ export default function TaskDetailsModal({ isOpen, onClose, taskId, onTaskUpdate
     const [attachment, setAttachment] = useState({ name: "", url: "" });
     const [error, setError] = useState("");
 
-    const fetchFullDetails = async () => {
-        try {
-            setLoading(true);
-            const data = await getTask(taskId);
-            setTask(data.data);
-        } catch {
-            setError("Failed to fetch task details.");
-        } finally {
-            setLoading(false);
-        }
-    };
-
     useEffect(() => {
+        const fetchFullDetails = async () => {
+            try {
+                setLoading(true);
+                const data = await getTask(taskId);
+                setTask(data.data);
+            } catch {
+                setError("Failed to fetch task details.");
+            } finally {
+                setLoading(false);
+            }
+        };
+
         if (isOpen && taskId) {
             fetchFullDetails();
         }

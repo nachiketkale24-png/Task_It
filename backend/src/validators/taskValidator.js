@@ -22,7 +22,8 @@ const createTaskValidator = [
     .withMessage('Deadline must be a valid date'),
 
   body('project')
-    .optional()
+    .notEmpty()
+    .withMessage('Project is required')
     .isMongoId()
     .withMessage('Project must be a valid MongoDB Project ID'),
 

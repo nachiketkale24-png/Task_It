@@ -16,12 +16,15 @@ function Register() {
     email: "",
     password: "",
     confirmPassword: "",
+    role: "Developer",
   });
 
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
 
   const [errors, setErrors] = useState({});
+  const [submitError, setSubmitError] = useState("");
+  const [successMessage, setSuccessMessage] = useState("");
 
   const handleChange = (e) => {
     setFormData({
@@ -33,6 +36,7 @@ function Register() {
       ...errors,
       [e.target.name]: "",
     });
+    setSubmitError("");
   };
 
   const validate = () => {
@@ -65,6 +69,10 @@ function Register() {
         "Passwords do not match";
     }
 
+    if (!formData.role) {
+      newErrors.role = "Role is required";
+    }
+
     setErrors(newErrors);
 
     return Object.keys(newErrors).length === 0;
@@ -82,18 +90,15 @@ function Register() {
             fullName: formData.name,
             email: formData.email,
             password: formData.password,
+            role: formData.role,
         });
 
-        alert(response.data.message);
+        setSuccessMessage(response.data.message || "Account created successfully");
 
         navigate("/login");
 
     } catch (error) {
-
-        alert(
-            error.response?.data?.message ||
-            "Registration failed"
-        );
+        setSubmitError(error.response?.data?.message || "Registration failed");
 
     } finally {
 
@@ -209,7 +214,39 @@ function Register() {
               error={errors.confirmPassword}
             />
 
-            <Button type="submit">
+            <div>
+              <label className="mb-2 block text-sm font-medium text-[var(--title-color)]">
+                Organization Role
+              </label>
+              <select
+                name="role"
+                value={formData.role}
+                onChange={handleChange}
+                className="h-11 w-full rounded-md border border-[var(--border-color)] bg-[var(--surface-card)] px-3 text-sm text-[var(--title-color)] outline-none transition focus:border-[var(--title-color)]"
+              >
+                <option value="Project Manager">Project Manager</option>
+                <option value="Team Lead">Team Lead</option>
+                <option value="Developer">Developer</option>
+                <option value="Intern">Intern</option>
+              </select>
+              {errors.role && (
+                <p className="mt-1 text-sm text-red-600">{errors.role}</p>
+              )}
+            </div>
+
+            {submitError && (
+              <p className="rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
+                {submitError}
+              </p>
+            )}
+
+            {successMessage && (
+              <p className="rounded-md border border-green-200 bg-green-50 px-3 py-2 text-sm text-green-700">
+                {successMessage}
+              </p>
+            )}
+
+            <Button type="submit" disabled={loading}>
                 {loading ? "Creating Account..." : "Create Account"}
             </Button>
 
