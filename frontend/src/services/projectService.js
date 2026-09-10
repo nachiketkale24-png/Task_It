@@ -1,25 +1,11 @@
-import axios from "axios";
+import api from "./api";
 
-const API = axios.create({
-  baseURL: "http://localhost:5000/api",
-});
+export const getProjects = (params) => api.get("/projects", { params });
 
-API.interceptors.request.use((config) => {
-  const token = localStorage.getItem("token");
+export const createProject = (data) => api.post("/projects", data);
 
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
-  }
+export const updateProject = (id, data) => api.put(`/projects/${id}`, data);
 
-  return config;
-});
+export const deleteProject = (id) => api.delete(`/projects/${id}`);
 
-export const getProjects = (params) => API.get("/projects", { params });
-
-export const createProject = (data) => API.post("/projects", data);
-
-export const updateProject = (id, data) => API.put(`/projects/${id}`, data);
-
-export const deleteProject = (id) => API.delete(`/projects/${id}`);
-
-export const getProjectById = (id) =>API.get(`/projects/${id}`);
+export const getProjectById = (id) => api.get(`/projects/${id}`);

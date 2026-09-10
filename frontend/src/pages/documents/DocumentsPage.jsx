@@ -375,7 +375,7 @@ export default function DocumentsPage() {
         return canManageProjects(getTeamRole(doc.project?.team, currentUserId));
     };
 
-    const fetchDocuments = async (type = activeType) => {
+    const fetchDocuments = useCallback(async (type = activeType) => {
         try {
             setLoading(true);
             const [res, projectRes] = await Promise.all([
@@ -389,9 +389,9 @@ export default function DocumentsPage() {
         } finally {
             setLoading(false);
         }
-    };
+    }, [activeType]);
 
-    useEffect(() => { fetchDocuments(activeType); }, [activeType]);
+    useEffect(() => { fetchDocuments(activeType); }, [activeType, fetchDocuments]);
 
     const handleDelete = async () => {
         if (!deleteTarget) return;

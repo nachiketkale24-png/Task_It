@@ -62,15 +62,19 @@ const createTask = async (taskData, userId) => {
 
 const getTasks = async (userId, filters = {}) => {
   const query = {};
+  let canFilterAnyAssignee = false;
 
   if (filters.project) {
     const { role } = await requireProjectAccess(filters.project, userId);
     query.project = filters.project;
     if (role === ROLE.INTERN) {
       query.assignee = userId;
+    } else if (TASK_MANAGERS.includes(role)) {
+      canFilterAnyAssignee = true;
     }
   } else {
     const { managerProjectIds, internProjectIds } = await getAccessibleProjectsByRole(userId);
+    canFilterAnyAssignee = managerProjectIds.length > 0;
     query.$or = [
       { project: { $in: managerProjectIds } },
       { project: { $in: internProjectIds }, assignee: userId },
@@ -79,7 +83,7 @@ const getTasks = async (userId, filters = {}) => {
     ];
   }
 
-  if (filters.assignee && !query.assignee) {
+  if (filters.assignee && !query.assignee && canFilterAnyAssignee) {
     query.assignee = filters.assignee === 'me' ? userId : filters.assignee;
   }
 
@@ -87,11 +91,25 @@ const getTasks = async (userId, filters = {}) => {
     query.assignee = userId;
   }
 
+  if (filters.status) {
+    query.status = filters.status;
+  }
+
+  if (filters.priority) {
+    query.priority = filters.priority;
+  }
+
+  if (filters.search) {
+    query.title = { $regex: filters.search, $options: 'i' };
+  }
+
+  const sort = filters.sort === 'deadline' ? { deadline: 1, createdAt: -1 } : { createdAt: -1 };
+
   return await Task.find(query)
     .populate('assignee', 'fullName email role')
     .populate('createdBy', 'fullName email role')
     .populate('project', 'projectName team status priority')
-    .sort({ createdAt: -1 });
+    .sort(sort);
 };
 
 const getTaskById = async (taskId, userId) => {

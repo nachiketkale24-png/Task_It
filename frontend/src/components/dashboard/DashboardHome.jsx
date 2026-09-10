@@ -73,6 +73,31 @@ export default function DashboardHome() {
                 <MemberWorkloadChart data={dashboardData.memberWorkload} />
             </div>
 
+            {dashboardData.projectProgress?.length > 0 && (
+                <div className="ui-card mb-8 p-5">
+                    <div className="mb-4">
+                        <h2 className="text-lg font-semibold text-[var(--title-color)]">Project Progress</h2>
+                        <p className="text-sm text-[var(--subtitle-color)]">Progress is derived from completed tasks.</p>
+                    </div>
+                    <div className="space-y-4">
+                        {dashboardData.projectProgress.slice(0, 6).map((project) => (
+                            <div key={project.id}>
+                                <div className="mb-1 flex items-center justify-between text-sm">
+                                    <span className="font-medium text-[var(--title-color)]">{project.name}</span>
+                                    <span className="text-[var(--subtitle-color)]">{project.progress}%</span>
+                                </div>
+                                <div className="h-2 overflow-hidden rounded-full bg-[var(--hover-bg)]">
+                                    <div
+                                        className="h-full rounded-full bg-[var(--title-color)]"
+                                        style={{ width: `${project.progress}%` }}
+                                    />
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            )}
+
             {/* Bottom Widgets Row */}
             <div className="grid gap-6 lg:grid-cols-2">
                 <ActivityFeedWidget activities={dashboardData.activityFeed} />

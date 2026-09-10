@@ -4,6 +4,7 @@
   onClick,
   variant = "primary",
   className = "",
+  disabled = false,
 }) {
   const variants = {
     primary: "ui-button-primary",
@@ -15,6 +16,7 @@
     <button
       type={type}
       onClick={onClick}
+      disabled={disabled}
       className={`ui-button w-full ${variants[variant] || variants.primary} ${className}`}
     >
       {children}

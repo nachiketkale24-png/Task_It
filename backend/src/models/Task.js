@@ -88,6 +88,12 @@ const taskSchema = new mongoose.Schema(
       ref: 'User',
       required: true
     },
+    deadlineReminderSentAt: {
+      type: Date
+    },
+    overdueNotificationSentAt: {
+      type: Date
+    },
     subtasks: [subtaskSchema],
     attachments: [attachmentSchema],
     comments: [commentSchema]

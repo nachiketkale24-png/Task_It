@@ -1,5 +1,12 @@
 const { body } = require("express-validator");
 
+const SELF_REGISTRATION_ROLES = [
+    "Project Manager",
+    "Team Lead",
+    "Developer",
+    "Intern",
+];
+
 const registerValidator = [
     body("fullName")
         .trim()
@@ -11,18 +18,14 @@ const registerValidator = [
         .withMessage("Enter a valid email"),
 
     body("password")
-        .isLength({ min: 6 })
-        .withMessage("Password must be at least 6 characters"),
+        .isLength({ min: 8 })
+        .withMessage("Password must be at least 8 characters"),
 
     body("role")
-        .optional()
-        .isIn([
-            "Super Admin",
-            "Project Manager",
-            "Team Lead",
-            "Intern",
-        ])
-        .withMessage("Invalid role"),
+        .notEmpty()
+        .withMessage("Role is required")
+        .isIn(SELF_REGISTRATION_ROLES)
+        .withMessage("Invalid registration role"),
 ];
 
 const loginValidator = [
@@ -38,4 +41,5 @@ const loginValidator = [
 module.exports = {
     registerValidator,
     loginValidator,
+    SELF_REGISTRATION_ROLES,
 };

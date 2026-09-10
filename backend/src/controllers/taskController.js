@@ -1,17 +1,22 @@
 const taskService = require('../services/taskService');
 const { createNotification } = require('../services/notificationService');
 
+const getId = (value) => value?._id?.toString?.() || value?.toString?.() || '';
+
 const createTask = async (req, res) => {
   try {
     const task = await taskService.createTask(req.body, req.user._id);
+    const assigneeId = getId(task.assignee);
+    const projectName = task.project?.projectName || 'Unassigned project';
 
     // Notify assignee if different from creator
-    if (task.assignee && task.assignee.toString() !== req.user._id.toString()) {
+    if (assigneeId && assigneeId !== req.user._id.toString()) {
       await createNotification(
-        task.assignee,
+        assigneeId,
         'task_assigned',
-        `You have been assigned a new task: "${task.title}"`,
-        task._id
+        `You have been assigned "${task.title}" in ${projectName}. Priority: ${task.priority}. Deadline: ${task.deadline ? new Date(task.deadline).toLocaleDateString() : 'Not set'}.`,
+        task._id,
+        { path: '/tasks' }
       );
     }
 
@@ -62,26 +67,42 @@ const updateTask = async (req, res) => {
     }
 
     // Notify new assignee when assignee changes
-    const newAssigneeId = req.body.assignee;
-    const oldAssigneeId = previousTask?.assignee?._id?.toString();
+    const newAssigneeId = req.body.assignee || req.body.assignedTo;
+    const oldAssigneeId = getId(previousTask?.assignee);
+    const projectName = task.project?.projectName || 'Unassigned project';
     if (newAssigneeId && newAssigneeId !== req.user._id.toString() && newAssigneeId !== oldAssigneeId) {
       await createNotification(
         newAssigneeId,
-        'task_assigned',
-        `You have been assigned a task: "${task.title}"`,
-        task._id
+        oldAssigneeId ? 'task_reassigned' : 'task_assigned',
+        `You have been assigned "${task.title}" in ${projectName}. Priority: ${task.priority}. Deadline: ${task.deadline ? new Date(task.deadline).toLocaleDateString() : 'Not set'}.`,
+        task._id,
+        { path: '/tasks' }
       );
+    }
+
+    if (req.body.status && previousTask?.status && req.body.status !== previousTask.status) {
+      const assigneeId = getId(task.assignee);
+      if (assigneeId && assigneeId !== req.user._id.toString()) {
+        await createNotification(
+          assigneeId,
+          'task_status_changed',
+          `Task "${task.title}" status changed to ${req.body.status}.`,
+          task._id,
+          { path: '/tasks', email: false }
+        );
+      }
     }
 
     // Notify creator when task is completed (if they're not the one updating)
     if (req.body.status === 'Completed' && previousTask?.status !== 'Completed') {
-      const creatorId = task.createdBy?._id?.toString() || task.createdBy?.toString();
+      const creatorId = getId(task.createdBy);
       if (creatorId && creatorId !== req.user._id.toString()) {
         await createNotification(
           creatorId,
           'task_completed',
           `Task "${task.title}" has been marked as Completed.`,
-          task._id
+          task._id,
+          { path: '/tasks' }
         );
       }
     }

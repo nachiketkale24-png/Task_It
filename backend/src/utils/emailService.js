@@ -1,29 +1,42 @@
 const nodemailer = require('nodemailer');
 
-/**
- * Sends an HTML notification email.
- * Gracefully skips (logs to console) if EMAIL_USER or EMAIL_PASS are not configured.
- */
-const sendEmail = async ({ to, subject, html }) => {
-  if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
-    console.log(`[EmailService] Skipping email (no SMTP config). Would send to: ${to} | Subject: ${subject}`);
+let transporter;
+
+const getTransporter = () => {
+  if (transporter) return transporter;
+
+  if (!process.env.EMAIL_HOST || !process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
+    return null;
+  }
+
+  transporter = nodemailer.createTransport({
+    host: process.env.EMAIL_HOST,
+    port: Number(process.env.EMAIL_PORT || 587),
+    secure: process.env.EMAIL_PORT === '465',
+    auth: {
+      user: process.env.EMAIL_USER,
+      pass: process.env.EMAIL_PASS,
+    },
+  });
+
+  return transporter;
+};
+
+const sendEmail = async ({ to, subject, html, text }) => {
+  const mailer = getTransporter();
+
+  if (!mailer) {
+    console.log(`[EmailService] Skipping email because SMTP is not configured. To: ${to} | Subject: ${subject}`);
     return;
   }
 
   try {
-    const transporter = nodemailer.createTransport({
-      service: 'gmail',
-      auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS,
-      },
-    });
-
-    await transporter.sendMail({
-      from: `"Task It" <${process.env.EMAIL_USER}>`,
+    await mailer.sendMail({
+      from: process.env.EMAIL_FROM || `"Task It" <${process.env.EMAIL_USER}>`,
       to,
       subject,
       html,
+      text,
     });
 
     console.log(`[EmailService] Email sent to ${to}`);

@@ -1,5 +1,6 @@
 ﻿import { useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
+import { useCallback } from "react";
 import {
   getProjects,
   createProject,
@@ -22,6 +23,12 @@ const ProjectsPage = () => {
   const [teams, setTeams] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [filters, setFilters] = useState({
+    search: "",
+    status: "",
+    team: "",
+    sort: "",
+  });
 
   const [showModal, setShowModal] = useState(false);
   const [editingId, setEditingId] = useState(null);
@@ -39,9 +46,26 @@ const ProjectsPage = () => {
     deploymentLink: "",
   });
 
+  const fetchProjects = useCallback(async (activeFilters = filters) => {
+    try {
+      setError("");
+      const params = Object.fromEntries(
+        Object.entries(activeFilters).filter(([, value]) => value)
+      );
+      const [projectRes, teamRes] = await Promise.all([getProjects(params), getTeams()]);
+      setProjects(projectRes.data.data);
+      setTeams(teamRes.data);
+    } catch (error) {
+      console.error(error);
+      setError(error.response?.data?.message || "Failed to load projects.");
+    } finally {
+      setLoading(false);
+    }
+  }, [filters]);
+
   useEffect(() => {
-    fetchProjects();
-  }, []);
+    fetchProjects(filters);
+  }, [fetchProjects, filters]);
 
   useEffect(() => {
     if (!location.state?.editProjectId || projects.length === 0) {
@@ -58,21 +82,7 @@ const ProjectsPage = () => {
 
     // Clear navigation state so refreshing doesn't reopen the modal
     navigate("/projects", { replace: true, state: {} });
-  }, [location.state, projects]);
-
-  async function fetchProjects() {
-    try {
-      setError("");
-      const [projectRes, teamRes] = await Promise.all([getProjects(), getTeams()]);
-      setProjects(projectRes.data.data);
-      setTeams(teamRes.data);
-    } catch (error) {
-      console.error(error);
-      setError(error.response?.data?.message || "Failed to load projects.");
-    } finally {
-      setLoading(false);
-    }
-  }
+  }, [location.state, navigate, projects]);
 
   const currentUserId = getCurrentUserId();
   const manageableTeams = teams.filter((team) =>
@@ -213,6 +223,47 @@ const ProjectsPage = () => {
       )}
 
       <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+        <div className="md:col-span-2 xl:col-span-3 grid gap-3 rounded-lg border border-[var(--border-color)] bg-[var(--surface-card)] p-3 md:grid-cols-4">
+          <input
+            type="search"
+            value={filters.search}
+            onChange={(e) => setFilters((prev) => ({ ...prev, search: e.target.value }))}
+            placeholder="Search projects"
+            className="ui-input"
+          />
+          <select
+            value={filters.status}
+            onChange={(e) => setFilters((prev) => ({ ...prev, status: e.target.value }))}
+            className="ui-input"
+          >
+            <option value="">All statuses</option>
+            <option value="Planning">Planning</option>
+            <option value="Active">Active</option>
+            <option value="On Hold">On Hold</option>
+            <option value="Completed">Completed</option>
+          </select>
+          <select
+            value={filters.team}
+            onChange={(e) => setFilters((prev) => ({ ...prev, team: e.target.value }))}
+            className="ui-input"
+          >
+            <option value="">All teams</option>
+            {teams.map((team) => (
+              <option key={team._id} value={team._id}>
+                {team.teamName}
+              </option>
+            ))}
+          </select>
+          <select
+            value={filters.sort}
+            onChange={(e) => setFilters((prev) => ({ ...prev, sort: e.target.value }))}
+            className="ui-input"
+          >
+            <option value="">Newest first</option>
+            <option value="deadline">Deadline</option>
+          </select>
+        </div>
+
         {projects.map((project) => (
           <div
             key={project._id}
@@ -251,6 +302,18 @@ const ProjectsPage = () => {
             )}
 
             <div className="space-y-1 text-sm text-[var(--subtitle-color)] mb-4">
+              <div>
+                <div className="mb-1 flex items-center justify-between text-xs">
+                  <span>Progress</span>
+                  <span>{project.progress || 0}%</span>
+                </div>
+                <div className="h-1.5 overflow-hidden rounded-full bg-[var(--hover-bg)]">
+                  <div
+                    className="h-full rounded-full bg-[var(--title-color)]"
+                    style={{ width: `${project.progress || 0}%` }}
+                  />
+                </div>
+              </div>
               <p>
                 <span className="font-medium">Start:</span>{' '}
                 {project.startDate?.slice(0, 10) || "Not set"}

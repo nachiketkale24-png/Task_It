@@ -67,10 +67,23 @@ const setProjectRepo = async (req, res) => {
 // GET /api/github/repo-info?url=<github_url>  — fetch info, commits, contributors, issues
 const getRepoInfo = async (req, res) => {
     try {
-        const { url } = req.query;
+        const { url, projectId } = req.query;
         const token = req.headers["x-github-token"] || process.env.GITHUB_TOKEN || null;
 
         if (!url) return res.status(400).json({ success: false, message: "url query param is required" });
+
+        if (projectId) {
+            const { project } = await requireProjectAccess(projectId, req.user._id);
+            if (project.githubRepo !== url) {
+                return res.status(403).json({ success: false, message: "Repository is not linked to this project" });
+            }
+        } else {
+            const projectIds = await getAccessibleProjectIds(req.user._id);
+            const linkedProject = await Project.findOne({ _id: { $in: projectIds }, githubRepo: url }).select("_id");
+            if (!linkedProject) {
+                return res.status(403).json({ success: false, message: "Not authorized to inspect this repository" });
+            }
+        }
 
         const parsed = parseGitHubUrl(url);
         if (!parsed) return res.status(400).json({ success: false, message: "Invalid GitHub URL" });
@@ -138,7 +151,7 @@ const getRepoInfo = async (req, res) => {
             },
         });
     } catch (err) {
-        res.status(500).json({ success: false, message: err.message });
+        res.status(err.statusCode || 500).json({ success: false, message: err.message });
     }
 };
 
