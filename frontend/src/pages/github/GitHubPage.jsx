@@ -247,11 +247,13 @@ export default function GitHubPage() {
               <p className="text-sm text-[var(--subtitle-color)] dark:text-[var(--muted-color)]">View repositories, commits, contributors & issues</p>
             </div>
           </div>
-          <button onClick={() => setShowModal(true)}
-            className="flex items-center gap-2 rounded-md bg-[var(--accent)] px-4 py-2.5 text-sm font-semibold text-[var(--accent-contrast)] hover:bg-[var(--accent-hover)] transition ">
-            <FiLink size={15} />
-            Link Repository
-          </button>
+          {allProjects.length > 0 && (
+            <button onClick={() => setShowModal(true)}
+              className="flex items-center gap-2 rounded-md bg-[var(--accent)] px-4 py-2.5 text-sm font-semibold text-[var(--accent-contrast)] hover:bg-[var(--accent-hover)] transition ">
+              <FiLink size={15} />
+              Link Repository
+            </button>
+          )}
         </div>
       </div>
 
@@ -265,10 +267,12 @@ export default function GitHubPage() {
             <div className="flex flex-col items-center justify-center p-8 rounded-lg border border-dashed border-[var(--border-color)] dark:border-gray-700 text-center">
               <FiGithub size={28} className="text-[var(--muted-color)] dark:text-[var(--subtitle-color)] mb-3" />
               <p className="text-sm text-[var(--subtitle-color)] dark:text-[var(--muted-color)]">No repositories linked yet.</p>
-              <button onClick={() => setShowModal(true)}
-                className="mt-3 text-xs text-[var(--title-color)] dark:text-[var(--title-color)] hover:underline font-medium">
-                + Link a repository
-              </button>
+              {allProjects.length > 0 && (
+                <button onClick={() => setShowModal(true)}
+                  className="mt-3 text-xs text-[var(--title-color)] dark:text-[var(--title-color)] hover:underline font-medium">
+                  + Link a repository
+                </button>
+              )}
             </div>
           ) : (
             linkedProjects.map(project => {

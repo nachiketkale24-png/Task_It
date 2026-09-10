@@ -10,8 +10,8 @@ const memberSchema = new mongoose.Schema(
 
     role: {
       type: String,
-      enum: ["Owner", "Member"],
-      default: "Member",
+      enum: ["Owner", "TeamLead", "Intern", "Member"],
+      default: "Intern",
     },
   },
   {
@@ -46,4 +46,13 @@ const teamSchema = new mongoose.Schema(
   }
 );
 
+teamSchema.pre("validate", function normalizeTeamRoles() {
+  if (Array.isArray(this.members)) {
+    this.members.forEach((member) => {
+      if (member.role === "Member") {
+        member.role = "Intern";
+      }
+    });
+  }
+});
 module.exports = mongoose.model("Team", teamSchema);

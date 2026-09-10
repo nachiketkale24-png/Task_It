@@ -1,6 +1,7 @@
 ﻿import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { getProjectById } from "../../services/projectService";
+import { canManageProjects, getCurrentUserId, getId, getTeamRole } from "../../utils/rbac";
 
 const ProjectDetails = () => {
   const { id } = useParams();
@@ -49,6 +50,12 @@ const ProjectDetails = () => {
     );
   }
 
+  const currentUserId = getCurrentUserId();
+  const role = !project.team && getId(project.owner) === currentUserId
+    ? "Owner"
+    : getTeamRole(project.team, currentUserId);
+  const canEditProject = canManageProjects(role);
+
   return (
     <div className="app-page">
 
@@ -66,22 +73,24 @@ const ProjectDetails = () => {
           </h1>
 
           <p className="text-[var(--subtitle-color)] mt-2">
-            Project details and information
+            {project.team?.teamName ? `${project.team.teamName} workspace` : "Project details and information"}
           </p>
         </div>
 
-        <button
-          onClick={() =>
-            navigate("/projects", {
-                state: {
-                    editProjectId: project._id,
-                },  
-            })
-          }
-          className="bg-[var(--accent)] text-[var(--accent-contrast)] px-4 py-2 rounded-lg"
-        >
-          Edit Project
-        </button>
+        {canEditProject && (
+          <button
+            onClick={() =>
+              navigate("/projects", {
+                  state: {
+                      editProjectId: project._id,
+                  },
+              })
+            }
+            className="bg-[var(--accent)] text-[var(--accent-contrast)] px-4 py-2 rounded-lg"
+          >
+            Edit Project
+          </button>
+        )}
       </div>
 
       <div className="grid gap-6 md:grid-cols-2">
@@ -226,6 +235,38 @@ const ProjectDetails = () => {
           </div>
         </div>
 
+      </div>
+
+      <div className="mt-6 rounded-lg border border-[var(--border-color)] bg-[var(--surface-card)] p-6">
+        <div className="mb-4 flex items-center justify-between">
+          <div>
+            <h2 className="text-lg font-semibold">Project Tasks</h2>
+            <p className="text-sm text-[var(--subtitle-color)]">
+              {project.tasks?.length || 0} tasks linked to this project
+            </p>
+          </div>
+        </div>
+
+        {project.tasks?.length > 0 ? (
+          <div className="divide-y divide-[var(--border-color)]">
+            {project.tasks.map((task) => (
+              <div key={task._id} className="flex flex-wrap items-center justify-between gap-3 py-3">
+                <div>
+                  <p className="font-medium text-[var(--title-color)]">{task.title}</p>
+                  <p className="text-sm text-[var(--subtitle-color)]">
+                    {task.assignee?.fullName || "Unassigned"} • {task.deadline ? task.deadline.slice(0, 10) : "No deadline"}
+                  </p>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="ui-badge badge-neutral">{task.priority}</span>
+                  <span className="ui-badge badge-info">{task.status}</span>
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <p className="text-sm text-[var(--subtitle-color)]">No tasks have been created for this project yet.</p>
+        )}
       </div>
     </div>
   );

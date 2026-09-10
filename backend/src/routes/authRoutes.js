@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const { protect } = require("../middleware/authMiddleware");
+const { protect, requireGlobalRole } = require("../middleware/authMiddleware");
 const validate = require("../middleware/validationMiddleware");
 const {
     registerUser,
@@ -26,7 +26,7 @@ router.post(
     validate,
     loginUser
 );
-router.get("/users", protect, getUsers);
+router.get("/users", protect, requireGlobalRole(["Super Admin"]), getUsers);
 module.exports = router;
 
 router.get("/profile", protect, (req, res) => {

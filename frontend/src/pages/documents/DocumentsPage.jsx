@@ -6,6 +6,8 @@ import {
 import {
     getDocuments, uploadDocument, deleteDocument
 } from "../../services/documentService";
+import { getProjects } from "../../services/projectService";
+import { canManageProjects, getCurrentUserId, getId, getTeamRole } from "../../utils/rbac";
 import { useEffect } from "react";
 
 // Section
@@ -37,10 +39,10 @@ function timeAgo(dateStr) {
 }
 
 // Section
-function UploadModal({ onClose, onSuccess }) {
+function UploadModal({ onClose, onSuccess, projects }) {
     const [file, setFile] = useState(null);
     const [dragging, setDragging] = useState(false);
-    const [form, setForm] = useState({ name: "", description: "", fileType: "PDF", tags: "" });
+    const [form, setForm] = useState({ name: "", description: "", fileType: "PDF", tags: "", project: projects[0]?._id || "" });
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
     const inputRef = useRef();
@@ -61,6 +63,7 @@ function UploadModal({ onClose, onSuccess }) {
         e.preventDefault();
         if (!file) return setError("Please select a file.");
         if (!form.fileType) return setError("Please select a file type.");
+        if (!form.project) return setError("Please select a project.");
         setLoading(true); setError("");
         try {
             const fd = new FormData();
@@ -69,6 +72,7 @@ function UploadModal({ onClose, onSuccess }) {
             fd.append("description", form.description);
             fd.append("fileType", form.fileType);
             fd.append("tags", form.tags);
+            fd.append("project", form.project);
             await uploadDocument(fd);
             onSuccess();
             onClose();
@@ -128,6 +132,23 @@ function UploadModal({ onClose, onSuccess }) {
                                 value={form.name}
                                 onChange={(e) => setForm(f => ({ ...f, name: e.target.value }))}
                             />
+                        </div>
+                        <div className="col-span-2">
+                            <label className="mb-1 block text-xs font-semibold text-[var(--subtitle-color)]">Project *</label>
+                            <select
+                                required
+                                value={form.project}
+                                onChange={(e) => setForm(f => ({ ...f, project: e.target.value }))}
+                                className="w-full rounded-md border border-[var(--border-color)] px-3 py-2 text-sm outline-none focus:border-[var(--title-color)]"
+                            >
+                                <option value="">Select project</option>
+                                {projects.map(project => (
+                                    <option key={project._id} value={project._id}>
+                                        {project.projectName}
+                                        {project.team?.teamName ? ` - ${project.team.teamName}` : ""}
+                                    </option>
+                                ))}
+                            </select>
                         </div>
                         <div>
                             <label className="mb-1 block text-xs font-semibold text-[var(--subtitle-color)]">File Type *</label>
@@ -234,7 +255,7 @@ function PreviewModal({ doc, onClose }) {
 }
 
 // Section
-function DocumentCard({ doc, onPreview, onDelete }) {
+function DocumentCard({ doc, onPreview, onDelete, canDelete }) {
     const meta = TYPE_META[doc.fileType] || { color: "bg-[var(--hover-bg)] text-[var(--title-color)]", icon: FiFile };
     const Icon = meta.icon;
     const initials = doc.uploadedBy?.fullName
@@ -289,13 +310,15 @@ function DocumentCard({ doc, onPreview, onDelete }) {
                         title="Download">
                         <FiDownload size={15} />
                     </a>
-                    <button
-                        onClick={() => onDelete(doc)}
-                        className="rounded-lg p-1.5 text-[var(--muted-color)] hover:bg-red-50 hover:text-red-500 transition"
-                        title="Delete"
-                    >
-                        <FiTrash2 size={15} />
-                    </button>
+                    {canDelete && (
+                        <button
+                            onClick={() => onDelete(doc)}
+                            className="rounded-lg p-1.5 text-[var(--muted-color)] hover:bg-red-50 hover:text-red-500 transition"
+                            title="Delete"
+                        >
+                            <FiTrash2 size={15} />
+                        </button>
+                    )}
                 </div>
             </div>
         </div>
@@ -333,6 +356,7 @@ function DeleteConfirm({ doc, onConfirm, onCancel, loading }) {
 // Section
 export default function DocumentsPage() {
     const [documents, setDocuments] = useState([]);
+    const [projects, setProjects] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
     const [activeType, setActiveType] = useState("All");
@@ -341,12 +365,25 @@ export default function DocumentsPage() {
     const [previewDoc, setPreviewDoc] = useState(null);
     const [deleteTarget, setDeleteTarget] = useState(null);
     const [deleting, setDeleting] = useState(false);
+    const currentUserId = getCurrentUserId();
+    const manageableProjects = projects.filter((project) => {
+        if (!project.team && getId(project.owner) === currentUserId) return true;
+        return canManageProjects(getTeamRole(project.team, currentUserId));
+    });
+    const canDeleteDocument = (doc) => {
+        if (getId(doc.uploadedBy) === currentUserId) return true;
+        return canManageProjects(getTeamRole(doc.project?.team, currentUserId));
+    };
 
     const fetchDocuments = async (type = activeType) => {
         try {
             setLoading(true);
-            const res = await getDocuments(type);
+            const [res, projectRes] = await Promise.all([
+                getDocuments(type),
+                getProjects(),
+            ]);
             setDocuments(res.data.data || []);
+            setProjects(projectRes.data.data || []);
         } catch {
             setError("Failed to load documents.");
         } finally {
@@ -386,13 +423,15 @@ export default function DocumentsPage() {
                         <h1 className="text-3xl font-bold text-[var(--title-color)]">Documents</h1>
                         <p className="mt-1 text-[var(--subtitle-color)]">Manage PPTs, PDFs, Datasets, Research Papers and more.</p>
                     </div>
-                    <button
-                        id="upload-document-btn"
-                        onClick={() => setShowUpload(true)}
-                        className="flex items-center gap-2 rounded-md bg-[var(--accent)] px-5 py-2.5 text-sm font-semibold text-[var(--accent-contrast)] hover:bg-[var(--accent-hover)] transition "
-                    >
-                        <FiPlus size={16} /> Upload Document
-                    </button>
+                    {manageableProjects.length > 0 && (
+                        <button
+                            id="upload-document-btn"
+                            onClick={() => setShowUpload(true)}
+                            className="flex items-center gap-2 rounded-md bg-[var(--accent)] px-5 py-2.5 text-sm font-semibold text-[var(--accent-contrast)] hover:bg-[var(--accent-hover)] transition "
+                        >
+                            <FiPlus size={16} /> Upload Document
+                        </button>
+                    )}
                 </div>
 
                 {/* Filter Tabs + Search */}
@@ -454,6 +493,7 @@ export default function DocumentsPage() {
                                     doc={doc}
                                     onPreview={setPreviewDoc}
                                     onDelete={setDeleteTarget}
+                                    canDelete={canDeleteDocument(doc)}
                                 />
                             ))}
                         </div>
@@ -463,7 +503,11 @@ export default function DocumentsPage() {
 
             {/* Modals */}
             {showUpload && (
-                <UploadModal onClose={() => setShowUpload(false)} onSuccess={() => fetchDocuments(activeType)} />
+                <UploadModal
+                    onClose={() => setShowUpload(false)}
+                    onSuccess={() => fetchDocuments(activeType)}
+                    projects={manageableProjects}
+                />
             )}
             {previewDoc && (
                 <PreviewModal doc={previewDoc} onClose={() => setPreviewDoc(null)} />

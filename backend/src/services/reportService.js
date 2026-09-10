@@ -1,12 +1,24 @@
 const Task = require('../models/Task');
 const Project = require('../models/Project');
 const Team = require('../models/Team');
-const User = require('../models/User');
+const { getManagedTeamIds, getManagedProjectIds } = require('../utils/rbac');
+
+const requireReportProjects = async (userId) => {
+    const projectIds = await getManagedProjectIds(userId);
+    if (projectIds.length === 0) {
+        const error = new Error('Insufficient report permissions');
+        error.statusCode = 403;
+        throw error;
+    }
+    return projectIds;
+};
 
 // 1. Project Report
 const getProjectReport = async (userId) => {
-    const projects = await Project.find({ owner: userId })
+    const projectIds = await requireReportProjects(userId);
+    const projects = await Project.find({ _id: { $in: projectIds } })
         .populate('owner', 'fullName email')
+        .populate('team', 'teamName')
         .sort({ createdAt: -1 });
 
     return projects.map((p) => ({
@@ -15,6 +27,7 @@ const getProjectReport = async (userId) => {
         status: p.status,
         priority: p.priority,
         owner: p.owner?.fullName || 'N/A',
+        team: p.team?.teamName || '-',
         startDate: p.startDate ? new Date(p.startDate).toLocaleDateString() : '-',
         deadline: p.deadline ? new Date(p.deadline).toLocaleDateString() : '-',
         githubRepo: p.githubRepo || '-',
@@ -25,9 +38,13 @@ const getProjectReport = async (userId) => {
 
 // 2. Team Report
 const getTeamReport = async (userId) => {
-    const teams = await Team.find({
-        $or: [{ owner: userId }, { 'members.user': userId }],
-    })
+    const teamIds = await getManagedTeamIds(userId);
+    if (teamIds.length === 0) {
+        const error = new Error('Insufficient report permissions');
+        error.statusCode = 403;
+        throw error;
+    }
+    const teams = await Team.find({ _id: { $in: teamIds } })
         .populate('owner', 'fullName email')
         .populate('members.user', 'fullName email role');
 
@@ -47,9 +64,13 @@ const getTeamReport = async (userId) => {
 
 // 3. Intern / Member Report
 const getInternReport = async (userId) => {
-    const teams = await Team.find({
-        $or: [{ owner: userId }, { 'members.user': userId }],
-    }).populate('members.user', 'fullName email role');
+    const teamIds = await getManagedTeamIds(userId);
+    if (teamIds.length === 0) {
+        const error = new Error('Insufficient report permissions');
+        error.statusCode = 403;
+        throw error;
+    }
+    const teams = await Team.find({ _id: { $in: teamIds } }).populate('members.user', 'fullName email role');
 
     const seen = new Set();
     const members = [];
@@ -63,9 +84,13 @@ const getInternReport = async (userId) => {
     }
 
     const now = new Date();
+    const projectIds = await requireReportProjects(userId);
     const report = await Promise.all(
         members.map(async (member) => {
-            const tasks = await Task.find({ assignee: member._id });
+            const tasks = await Task.find({
+                assignee: member._id,
+                project: { $in: projectIds },
+            });
             const completed = tasks.filter((t) => t.status === 'Completed').length;
             const overdue = tasks.filter(
                 (t) => t.deadline && t.deadline < now && t.status !== 'Completed'
@@ -100,8 +125,13 @@ const getMonthlyReport = async (userId, monthParam) => {
     const startOfMonth = new Date(year, month - 1, 1);
     const endOfMonth = new Date(year, month, 0, 23, 59, 59);
 
+    const projectIds = await requireReportProjects(userId);
     const tasks = await Task.find({
-        $or: [{ createdBy: userId }, { assignee: userId }],
+        $or: [
+            { project: { $in: projectIds } },
+            { createdBy: userId, project: { $exists: false } },
+            { assignee: userId, project: { $exists: false } },
+        ],
         createdAt: { $gte: startOfMonth, $lte: endOfMonth },
     })
         .populate('assignee', 'fullName')
@@ -129,8 +159,13 @@ const getMonthlyReport = async (userId, monthParam) => {
 
 // 5. Completed Tasks Report
 const getCompletedTasksReport = async (userId) => {
+    const projectIds = await requireReportProjects(userId);
     const tasks = await Task.find({
-        $or: [{ createdBy: userId }, { assignee: userId }],
+        $or: [
+            { project: { $in: projectIds } },
+            { createdBy: userId, project: { $exists: false } },
+            { assignee: userId, project: { $exists: false } },
+        ],
         status: 'Completed',
     })
         .populate('assignee', 'fullName email')
@@ -153,8 +188,13 @@ const getCompletedTasksReport = async (userId) => {
 // 6. Delayed / Overdue Tasks Report
 const getDelayedTasksReport = async (userId) => {
     const now = new Date();
+    const projectIds = await requireReportProjects(userId);
     const tasks = await Task.find({
-        $or: [{ createdBy: userId }, { assignee: userId }],
+        $or: [
+            { project: { $in: projectIds } },
+            { createdBy: userId, project: { $exists: false } },
+            { assignee: userId, project: { $exists: false } },
+        ],
         deadline: { $lt: now },
         status: { $ne: 'Completed' },
     })

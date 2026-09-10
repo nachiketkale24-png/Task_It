@@ -1,10 +1,12 @@
 const Task = require('../models/Task');
-const Project = require('../models/Project');
 const Team = require('../models/Team');
+const { getAccessibleProjectsByRole } = require('../utils/rbac');
 
 const getDashboardStats = async (userId) => {
     // 1. Total Stats
-    const totalProjects = await Project.countDocuments({ owner: userId });
+    const { managerProjectIds, internProjectIds } = await getAccessibleProjectsByRole(userId);
+    const accessibleProjectIds = [...managerProjectIds, ...internProjectIds];
+    const totalProjects = accessibleProjectIds.length;
     
     // Find teams where user is owner or member
     const teams = await Team.find({
@@ -18,8 +20,10 @@ const getDashboardStats = async (userId) => {
     // Fetch tasks where user is creator or assignee
     const tasks = await Task.find({
         $or: [
-            { createdBy: userId },
-            { assignee: userId }
+            { project: { $in: managerProjectIds } },
+            { project: { $in: internProjectIds }, assignee: userId },
+            { createdBy: userId, project: { $exists: false } },
+            { assignee: userId, project: { $exists: false } }
         ]
     }).populate('assignee', 'fullName profileImage')
       .populate('createdBy', 'fullName profileImage')
