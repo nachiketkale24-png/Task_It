@@ -1,4 +1,4 @@
-import { FiArrowRight, FiUsers } from "react-icons/fi";
+﻿import { FiArrowRight, FiUsers } from "react-icons/fi";
 import { Link } from "react-router-dom";
 
 export default function TeamCard({ team }) {
@@ -8,37 +8,37 @@ export default function TeamCard({ team }) {
     return (
         <Link
             to={`/teams/${team._id}`}
-            className="group block rounded-xl border border-gray-200 bg-white p-5 shadow-sm transition hover:border-gray-300 hover:shadow-md"
+            className="ui-card ui-card-hover group block p-5"
         >
             <div className="flex items-start justify-between gap-4">
                 <div className="flex min-w-0 items-center gap-3">
-                    <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-gray-900 text-white">
+                    <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-md bg-[var(--icon-bg)] text-[var(--icon-contrast)]">
                         <FiUsers size={20} />
                     </div>
 
                     <div className="min-w-0">
-                        <h2 className="truncate text-lg font-semibold text-gray-900">
+                        <h2 className="truncate text-lg font-semibold text-[var(--title-color)]">
                             {team.teamName}
                         </h2>
 
-                        <p className="mt-1 text-sm text-gray-500">
+                        <p className="mt-1 text-sm text-[var(--subtitle-color)]">
                             Owned by {ownerName}
                         </p>
                     </div>
                 </div>
 
-                <FiArrowRight className="mt-3 shrink-0 text-gray-300 transition group-hover:translate-x-1 group-hover:text-gray-700" />
+                <FiArrowRight className="mt-3 shrink-0 text-[var(--muted-color)] transition group-hover:translate-x-1 group-hover:text-[var(--title-color)]" />
             </div>
 
-            <p className="mt-5 line-clamp-2 min-h-10 text-sm leading-5 text-gray-500">
+            <p className="mt-5 line-clamp-2 min-h-10 text-sm leading-5 text-[var(--subtitle-color)]">
                 {team.description || "No description added yet."}
             </p>
 
-            <div className="mt-6 flex items-center justify-between border-t border-gray-100 pt-4">
+            <div className="mt-6 flex items-center justify-between border-t border-[var(--border-color)] pt-4">
 
-                <div className="flex items-center gap-2 text-sm text-gray-600">
+                <div className="flex items-center gap-2 text-sm text-[var(--subtitle-color)]">
 
-                    <span className="flex h-8 w-8 items-center justify-center rounded-full bg-gray-100 font-semibold text-gray-700">
+                    <span className="flex h-8 w-8 items-center justify-center rounded-full bg-[var(--hover-bg)] font-semibold text-[var(--title-color)]">
                         {memberCount}
                     </span>
 
@@ -48,7 +48,7 @@ export default function TeamCard({ team }) {
 
                 </div>
 
-                <span className="rounded-full bg-gray-100 px-3 py-1 text-sm text-gray-600">
+                <span className="rounded-full bg-[var(--hover-bg)] px-3 py-1 text-sm text-[var(--subtitle-color)]">
                     {memberCount === 1 ? "Solo" : "Active"}
                 </span>
 
@@ -57,3 +57,9 @@ export default function TeamCard({ team }) {
         </Link>
     );
 }
+
+
+
+
+
+

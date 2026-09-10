@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+﻿import { useCallback, useEffect, useState } from "react";
 import {
     FiArrowLeft,
     FiEdit2,
@@ -156,7 +156,7 @@ export default function TeamDetails() {
 
     if (loading) {
         return (
-            <div className="p-10 text-gray-500">
+            <div className="p-10 text-[var(--subtitle-color)]">
                 Loading Team...
             </div>
         );
@@ -173,28 +173,28 @@ export default function TeamDetails() {
     }
 
     return (
-        <div className="p-8">
+        <div className="app-page">
             <div className="mx-auto max-w-5xl">
                 <Link
                     to="/teams"
-                    className="mb-6 inline-flex items-center gap-2 text-sm font-medium text-gray-600 hover:text-black"
+                    className="mb-6 inline-flex items-center gap-2 text-sm font-medium text-[var(--subtitle-color)] hover:text-[var(--title-color)]"
                 >
                     <FiArrowLeft />
                     Back to teams
                 </Link>
 
-                <div className="mb-8 rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
+                <div className="mb-8 rounded-md border border-[var(--border-color)] bg-[var(--surface-card)] p-6 ">
                     <div className="flex flex-wrap items-start justify-between gap-4">
                     <div>
-                        <p className="text-sm font-medium text-gray-500">
+                        <p className="text-sm font-medium text-[var(--subtitle-color)]">
                             Team
                         </p>
 
-                        <h1 className="mt-1 text-3xl font-bold text-gray-900">
+                        <h1 className="mt-1 text-3xl font-bold text-[var(--title-color)]">
                             {team.teamName}
                         </h1>
 
-                        <p className="mt-2 max-w-2xl text-gray-500">
+                        <p className="mt-2 max-w-2xl text-[var(--subtitle-color)]">
                             {team.description || "No description added yet."}
                         </p>
                     </div>
@@ -204,7 +204,7 @@ export default function TeamDetails() {
                             <>
                                 <Link
                                     to={`/teams/${id}/edit`}
-                                    className="inline-flex items-center gap-2 rounded-xl border border-gray-300 px-4 py-3 hover:bg-white"
+                                    className="inline-flex items-center gap-2 rounded-md border border-[var(--border-color)] px-4 py-3 hover:bg-[var(--surface-card)]"
                                 >
                                     <FiEdit2 />
                                     Edit
@@ -213,7 +213,7 @@ export default function TeamDetails() {
                                 <button
                                     onClick={handleDeleteTeam}
                                     disabled={actionLoading}
-                                    className="inline-flex items-center gap-2 rounded-xl bg-red-500 px-4 py-3 text-white hover:bg-red-600 disabled:opacity-60"
+                                    className="inline-flex items-center gap-2 rounded-md bg-red-500 px-4 py-3 text-white hover:bg-red-600 disabled:opacity-60"
                                 >
                                     <FiTrash2 />
                                     Delete
@@ -223,7 +223,7 @@ export default function TeamDetails() {
                             <button
                                 onClick={handleLeaveTeam}
                                 disabled={actionLoading}
-                                className="rounded-xl border border-red-200 px-4 py-3 text-red-500 hover:bg-red-50 disabled:opacity-60"
+                                className="rounded-md border border-red-200 px-4 py-3 text-red-500 hover:bg-red-50 disabled:opacity-60"
                             >
                                 Leave Team
                             </button>
@@ -233,22 +233,22 @@ export default function TeamDetails() {
                 </div>
 
                 <div className="grid gap-6 lg:grid-cols-[1fr_360px]">
-                    <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
+                    <div className="rounded-md border border-[var(--border-color)] bg-[var(--surface-card)] p-6 ">
                         <div className="mb-6 flex items-center justify-between">
                             <div>
                                 <h2 className="text-xl font-semibold">
                                     Members
                                 </h2>
 
-                                <p className="mt-1 text-sm text-gray-500">
+                                <p className="mt-1 text-sm text-[var(--subtitle-color)]">
                                     {team.members.length} people in this team
                                 </p>
                             </div>
 
-                            <FiUsers className="text-gray-400" size={24} />
+                            <FiUsers className="text-[var(--muted-color)]" size={24} />
                         </div>
 
-                        <div className="divide-y divide-gray-100">
+                        <div className="divide-y divide-[var(--border-color)]">
                             {team.members.map((member) => {
                                 const user = member.user;
                                 const userId = user?._id || user;
@@ -265,13 +265,13 @@ export default function TeamDetails() {
                                                 {user?.fullName || "Team Member"}
                                             </p>
 
-                                            <p className="text-sm text-gray-500">
+                                            <p className="text-sm text-[var(--subtitle-color)]">
                                                 {user?.email || "No email available"}
                                             </p>
                                         </div>
 
                                         <div className="flex items-center gap-3">
-                                            <span className="rounded-full bg-gray-100 px-3 py-1 text-sm">
+                                            <span className="rounded-full bg-[var(--hover-bg)] px-3 py-1 text-sm">
                                                 {member.role}
                                             </span>
 
@@ -294,14 +294,14 @@ export default function TeamDetails() {
                         </div>
                     </div>
 
-                    <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
+                    <div className="rounded-md border border-[var(--border-color)] bg-[var(--surface-card)] p-6 ">
                         <h2 className="text-xl font-semibold">
                             Team Actions
                         </h2>
 
                         <div className="mt-5 space-y-4">
-                            <div className="rounded-xl bg-gray-50 p-4">
-                                <p className="text-sm text-gray-500">
+                            <div className="rounded-md bg-[var(--surface-muted)] p-4">
+                                <p className="text-sm text-[var(--subtitle-color)]">
                                     Owner
                                 </p>
 
@@ -327,13 +327,13 @@ export default function TeamDetails() {
                                                 setEmail(e.target.value)
                                             }
                                             placeholder="name@example.com"
-                                            className="min-w-0 flex-1 rounded-xl border border-gray-300 px-4 py-3 outline-none focus:border-black"
+                                            className="min-w-0 flex-1 rounded-md border border-[var(--border-color)] px-4 py-3 outline-none focus:border-[var(--title-color)] focus:ring-2 focus:ring-gray-200"
                                         />
 
                                         <button
                                             type="submit"
                                             disabled={actionLoading}
-                                            className="rounded-xl bg-black px-4 py-3 text-white hover:bg-gray-800 disabled:opacity-60"
+                                            className="rounded-md bg-[var(--accent)] px-4 py-3 text-[var(--accent-contrast)] hover:bg-[var(--accent-hover)] disabled:opacity-60"
                                             title="Invite member"
                                         >
                                             <FiMail />
@@ -360,3 +360,9 @@ export default function TeamDetails() {
         </div>
     );
 }
+
+
+
+
+
+

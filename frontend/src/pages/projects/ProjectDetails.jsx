@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+﻿import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { getProjectById } from "../../services/projectService";
 
@@ -10,31 +10,31 @@ const ProjectDetails = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    const fetchProject = async () => {
+      try {
+        const res = await getProjectById(id);
+        setProject(res.data.data);
+      } catch (error) {
+        console.error(error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
     fetchProject();
   }, [id]);
 
-  const fetchProject = async () => {
-    try {
-      const res = await getProjectById(id);
-      setProject(res.data.data);
-    } catch (error) {
-      console.error(error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
   if (loading) {
     return (
-      <div className="p-8">
-        <p className="text-gray-500">Loading project...</p>
+      <div className="app-page">
+        <p className="text-[var(--subtitle-color)]">Loading project...</p>
       </div>
     );
   }
 
   if (!project) {
     return (
-      <div className="p-8">
+      <div className="app-page">
         <h1 className="text-2xl font-bold mb-3">
           Project not found
         </h1>
@@ -50,22 +50,22 @@ const ProjectDetails = () => {
   }
 
   return (
-    <div className="p-6 md:p-8">
+    <div className="app-page">
 
       <div className="flex items-center justify-between mb-8">
         <div>
           <button
             onClick={() => navigate("/projects")}
-            className="text-sm text-gray-500 hover:text-black mb-3"
+            className="text-sm text-[var(--subtitle-color)] hover:text-[var(--title-color)] mb-3"
           >
-            ← Back to Projects
+            Back to Projects
           </button>
 
           <h1 className="text-3xl font-bold">
             {project.projectName}
           </h1>
 
-          <p className="text-gray-500 mt-2">
+          <p className="text-[var(--subtitle-color)] mt-2">
             Project details and information
           </p>
         </div>
@@ -78,7 +78,7 @@ const ProjectDetails = () => {
                 },  
             })
           }
-          className="bg-black text-white px-4 py-2 rounded-lg"
+          className="bg-[var(--accent)] text-[var(--accent-contrast)] px-4 py-2 rounded-lg"
         >
           Edit Project
         </button>
@@ -87,30 +87,30 @@ const ProjectDetails = () => {
       <div className="grid gap-6 md:grid-cols-2">
 
         {/* Description */}
-        <div className="border rounded-2xl p-6 bg-white shadow-sm md:col-span-2">
+        <div className="border rounded-lg p-6 bg-[var(--surface-card)]  md:col-span-2">
           <h2 className="text-lg font-semibold mb-3">
             Description
           </h2>
 
-          <p className="text-gray-600 leading-relaxed">
+          <p className="text-[var(--subtitle-color)] leading-relaxed">
             {project.description || "No description provided."}
           </p>
         </div>
 
         {/* Status */}
-        <div className="border rounded-2xl p-6 bg-white shadow-sm">
-          <h2 className="text-sm text-gray-500 mb-2">
+        <div className="border rounded-lg p-6 bg-[var(--surface-card)] ">
+          <h2 className="text-sm text-[var(--subtitle-color)] mb-2">
             Status
           </h2>
 
-          <span className="inline-block px-3 py-1 rounded-full bg-gray-100 text-gray-700 text-sm">
+          <span className="inline-block px-3 py-1 rounded-full bg-[var(--hover-bg)] text-[var(--title-color)] text-sm">
             {project.status}
           </span>
         </div>
 
         {/* Priority */}
-        <div className="border rounded-2xl p-6 bg-white shadow-sm">
-          <h2 className="text-sm text-gray-500 mb-2">
+        <div className="border rounded-lg p-6 bg-[var(--surface-card)] ">
+          <h2 className="text-sm text-[var(--subtitle-color)] mb-2">
             Priority
           </h2>
 
@@ -120,8 +120,8 @@ const ProjectDetails = () => {
         </div>
 
         {/* Start Date */}
-        <div className="border rounded-2xl p-6 bg-white shadow-sm">
-          <h2 className="text-sm text-gray-500 mb-2">
+        <div className="border rounded-lg p-6 bg-[var(--surface-card)] ">
+          <h2 className="text-sm text-[var(--subtitle-color)] mb-2">
             Start Date
           </h2>
 
@@ -133,8 +133,8 @@ const ProjectDetails = () => {
         </div>
 
         {/* Deadline */}
-        <div className="border rounded-2xl p-6 bg-white shadow-sm">
-          <h2 className="text-sm text-gray-500 mb-2">
+        <div className="border rounded-lg p-6 bg-[var(--surface-card)] ">
+          <h2 className="text-sm text-[var(--subtitle-color)] mb-2">
             Deadline
           </h2>
 
@@ -146,7 +146,7 @@ const ProjectDetails = () => {
         </div>
 
         {/* Technologies */}
-        <div className="border rounded-2xl p-6 bg-white shadow-sm md:col-span-2">
+        <div className="border rounded-lg p-6 bg-[var(--surface-card)]  md:col-span-2">
           <h2 className="text-lg font-semibold mb-4">
             Technologies
           </h2>
@@ -156,13 +156,13 @@ const ProjectDetails = () => {
               project.technologies.map((technology, index) => (
                 <span
                   key={index}
-                  className="px-3 py-1 rounded-full bg-gray-100 text-gray-700 text-sm"
+                  className="px-3 py-1 rounded-full bg-[var(--hover-bg)] text-[var(--title-color)] text-sm"
                 >
                   {technology}
                 </span>
               ))
             ) : (
-              <p className="text-gray-500">
+              <p className="text-[var(--subtitle-color)]">
                 No technologies added.
               </p>
             )}
@@ -170,7 +170,7 @@ const ProjectDetails = () => {
         </div>
 
         {/* Links */}
-        <div className="border rounded-2xl p-6 bg-white shadow-sm md:col-span-2">
+        <div className="border rounded-lg p-6 bg-[var(--surface-card)]  md:col-span-2">
           <h2 className="text-lg font-semibold mb-4">
             Project Links
           </h2>
@@ -179,7 +179,7 @@ const ProjectDetails = () => {
 
             {project.githubRepo ? (
               <div>
-                <span className="text-sm text-gray-500">
+                <span className="text-sm text-[var(--subtitle-color)]">
                   GitHub Repository
                 </span>
 
@@ -195,14 +195,14 @@ const ProjectDetails = () => {
                 </a>
               </div>
             ) : (
-              <p className="text-gray-500">
+              <p className="text-[var(--subtitle-color)]">
                 No GitHub repository added.
               </p>
             )}
 
             {project.deploymentLink ? (
               <div>
-                <span className="text-sm text-gray-500">
+                <span className="text-sm text-[var(--subtitle-color)]">
                   Deployment
                 </span>
 
@@ -218,7 +218,7 @@ const ProjectDetails = () => {
                 </a>
               </div>
             ) : (
-              <p className="text-gray-500">
+              <p className="text-[var(--subtitle-color)]">
                 No deployment link added.
               </p>
             )}
@@ -232,3 +232,8 @@ const ProjectDetails = () => {
 };
 
 export default ProjectDetails;
+
+
+
+
+

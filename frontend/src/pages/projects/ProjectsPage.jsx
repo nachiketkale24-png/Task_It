@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+﻿import { useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import {
   getProjects,
@@ -49,7 +49,7 @@ const ProjectsPage = () => {
     navigate("/projects", { replace: true, state: {} });
   }, [location.state, projects]);
 
-  const fetchProjects = async () => {
+  async function fetchProjects() {
     try {
       const res = await getProjects();
       setProjects(res.data.data);
@@ -58,7 +58,7 @@ const ProjectsPage = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -132,7 +132,7 @@ const ProjectsPage = () => {
     setShowModal(true);
   };
 
-  const openEditModal = (project) => {
+  function openEditModal(project) {
     setEditingId(project._id);
 
     setFormData({
@@ -148,25 +148,25 @@ const ProjectsPage = () => {
     });
 
     setShowModal(true);
-  };
+  }
 
   if (loading) {
-    return <div className="p-8">Loading projects...</div>;
+    return <div className="app-page">Loading projects...</div>;
   }
 
   return (
-    <div className="p-8">
-      <div className="flex justify-between items-center mb-8">
+    <div className="app-page">
+      <div className="page-header">
         <div>
-          <h1 className="text-3xl font-bold">Projects</h1>
-          <p className="text-gray-500 mt-1">
+          <h1 className="page-title">Projects</h1>
+          <p className="page-description">
             Manage your startup projects and deployments
           </p>
         </div>
 
         <button
           onClick={openCreateModal}
-          className="bg-black text-white px-4 py-2 rounded-xl hover:bg-gray-800 transition"
+          className="ui-button ui-button-primary"
         >
           + New Project
         </button>
@@ -176,24 +176,24 @@ const ProjectsPage = () => {
         {projects.map((project) => (
           <div
             key={project._id}
-            className="border border-gray-200 rounded-3xl p-6 shadow-sm bg-white hover:shadow-md transition h-fit"
+            className="ui-card ui-card-hover h-fit p-5"
           >
             <div className="flex justify-between items-start mb-4">
               <div>
-                <h2 className="text-xl font-semibold">
+                <h2 className="text-base font-semibold">
                   {project.projectName}
                 </h2>
-                <p className="text-sm text-gray-500 mt-1">
+                <p className="text-sm text-[var(--subtitle-color)] mt-1">
                   {project.priority} priority
                 </p>
               </div>
 
-              <span className="text-xs px-3 py-1 rounded-full bg-green-100 text-green-700 font-medium">
+              <span className="ui-badge badge-success">
                 {project.status}
               </span>
             </div>
 
-            <p className="text-gray-600 mb-4 line-clamp-3">
+            <p className="text-[var(--subtitle-color)] mb-4 line-clamp-3">
               {project.description}
             </p>
 
@@ -202,7 +202,7 @@ const ProjectsPage = () => {
                 {project.technologies.map((tech) => (
                   <span
                     key={tech}
-                    className="bg-gray-100 text-gray-700 px-3 py-1 rounded-full text-xs font-medium"
+                    className="ui-badge badge-neutral"
                   >
                     {tech}
                   </span>
@@ -210,7 +210,7 @@ const ProjectsPage = () => {
               </div>
             )}
 
-            <div className="space-y-1 text-sm text-gray-500 mb-4">
+            <div className="space-y-1 text-sm text-[var(--subtitle-color)] mb-4">
               <p>
                 <span className="font-medium">Start:</span>{' '}
                 {project.startDate?.slice(0, 10) || "Not set"}
@@ -227,7 +227,7 @@ const ProjectsPage = () => {
                   href={project.githubRepo}
                   target="_blank"
                   rel="noreferrer"
-                  className="border px-3 py-2 rounded-lg text-sm hover:bg-gray-50 transition"
+                  className="ui-button ui-button-secondary"
                 >
                   GitHub
                 </a>
@@ -238,7 +238,7 @@ const ProjectsPage = () => {
                   href={project.deploymentLink}
                   target="_blank"
                   rel="noreferrer"
-                  className="border px-3 py-2 rounded-lg text-sm hover:bg-gray-50 transition"
+                  className="ui-button ui-button-secondary"
                 >
                   Live
                 </a>
@@ -247,7 +247,7 @@ const ProjectsPage = () => {
 
             <div className="flex gap-2 flex-wrap">
               <button
-                className="border px-3 py-2 rounded-lg text-sm hover:bg-gray-50 transition"
+                className="ui-button ui-button-secondary"
                 onClick={() => navigate(`/projects/${project._id}`)}
               >
                 View
@@ -255,14 +255,14 @@ const ProjectsPage = () => {
 
               <button
                 onClick={() => openEditModal(project)}
-                className="border px-3 py-2 rounded-lg text-sm hover:bg-gray-50 transition"
+                className="ui-button ui-button-secondary"
               >
                 Edit
               </button>
 
               <button
                 onClick={() => handleDelete(project._id)}
-                className="border border-red-300 text-red-600 px-3 py-2 rounded-lg text-sm hover:bg-red-50 transition"
+                className="ui-button border-red-200 text-red-600 hover:bg-red-50 dark:border-red-900/60 dark:hover:bg-red-950/30"
               >
                 Delete
               </button>
@@ -273,8 +273,8 @@ const ProjectsPage = () => {
 
       {showModal && (
         <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4">
-          <div className="bg-white p-6 rounded-3xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
-            <h2 className="text-2xl font-bold mb-6">
+          <div className="ui-modal-panel w-full max-w-lg max-h-[90vh] overflow-y-auto p-6">
+            <h2 className="mb-6 text-xl font-semibold">
               {editingId ? "Edit Project" : "Create Project"}
             </h2>
 
@@ -289,7 +289,7 @@ const ProjectsPage = () => {
                     projectName: e.target.value,
                   })
                 }
-                className="w-full border rounded-xl px-4 py-3"
+                className="ui-input"
                 required
               />
 
@@ -302,7 +302,7 @@ const ProjectsPage = () => {
                     description: e.target.value,
                   })
                 }
-                className="w-full border rounded-xl px-4 py-3"
+                className="ui-input"
                 rows={4}
                 required
               />
@@ -317,7 +317,7 @@ const ProjectsPage = () => {
                       startDate: e.target.value,
                     })
                   }
-                  className="border rounded-xl px-4 py-3"
+                  className="ui-input"
                 />
 
                 <input
@@ -329,7 +329,7 @@ const ProjectsPage = () => {
                       deadline: e.target.value,
                     })
                   }
-                  className="border rounded-xl px-4 py-3"
+                  className="ui-input"
                 />
               </div>
 
@@ -343,7 +343,7 @@ const ProjectsPage = () => {
                     technologies: e.target.value,
                   })
                 }
-                className="w-full border rounded-xl px-4 py-3"
+                className="ui-input"
               />
 
               <input
@@ -356,7 +356,7 @@ const ProjectsPage = () => {
                     githubRepo: e.target.value,
                   })
                 }
-                className="w-full border rounded-xl px-4 py-3"
+                className="ui-input"
               />
 
               <input
@@ -369,7 +369,7 @@ const ProjectsPage = () => {
                     deploymentLink: e.target.value,
                   })
                 }
-                className="w-full border rounded-xl px-4 py-3"
+                className="ui-input"
               />
 
               <div className="grid grid-cols-2 gap-3">
@@ -381,7 +381,7 @@ const ProjectsPage = () => {
                       status: e.target.value,
                     })
                   }
-                  className="border rounded-xl px-4 py-3"
+                  className="ui-input"
                 >
                   <option>Active</option>
                   <option>Planning</option>
@@ -397,7 +397,7 @@ const ProjectsPage = () => {
                       priority: e.target.value,
                     })
                   }
-                  className="border rounded-xl px-4 py-3"
+                  className="ui-input"
                 >
                   <option>Low</option>
                   <option>Medium</option>
@@ -413,14 +413,14 @@ const ProjectsPage = () => {
                     setShowModal(false);
                     setEditingId(null);
                   }}
-                  className="border px-5 py-3 rounded-xl hover:bg-gray-50 transition"
+                  className="ui-button ui-button-secondary"
                 >
                   Cancel
                 </button>
 
                 <button
                   type="submit"
-                  className="bg-black text-white px-5 py-3 rounded-xl hover:bg-gray-800 transition"
+                  className="ui-button ui-button-primary"
                 >
                   {editingId ? "Update" : "Create"}
                 </button>
@@ -434,3 +434,8 @@ const ProjectsPage = () => {
 };
 
 export default ProjectsPage;
+
+
+
+
+

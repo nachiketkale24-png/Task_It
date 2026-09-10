@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+﻿import { useState, useEffect } from "react";
 import {
   FiGithub, FiStar, FiGitBranch, FiAlertCircle, FiUsers,
   FiGitCommit, FiLink, FiExternalLink, FiRefreshCw, FiX,
@@ -8,7 +8,7 @@ import {
   getLinkedProjects, getAllProjects, setProjectRepo, getRepoInfo,
 } from "../../services/githubService";
 
-// ─── Utility ──────────────────────────────────────────────────────────────────
+// Section
 const timeAgo = (dateStr) => {
   if (!dateStr) return "";
   const diff = (Date.now() - new Date(dateStr)) / 1000;
@@ -19,17 +19,10 @@ const timeAgo = (dateStr) => {
   return new Date(dateStr).toLocaleDateString();
 };
 
-const langColors = {
-  JavaScript: "#f7df1e", TypeScript: "#3178c6", Python: "#3572a5",
-  Java: "#b07219", "C++": "#f34b7d", Go: "#00add8", Rust: "#dea584",
-  Ruby: "#701516", PHP: "#4f5d95", Swift: "#fa7343", Kotlin: "#a97bff",
-  CSS: "#563d7c", HTML: "#e34c26", Shell: "#89e051", Dart: "#00b4ab",
-};
-
-// ─── Sub-components ────────────────────────────────────────────────────────────
-function StatBadge({ icon: Icon, label, value, color = "violet" }) {
+// Section
+function StatBadge({ icon: Icon, label, value, color = "neutral" }) {
   const colors = {
-    violet: "bg-violet-50 dark:bg-violet-900/20 text-violet-700 dark:text-violet-300",
+    neutral: "bg-[var(--surface-muted)] dark:bg-[var(--hover-bg)] text-[var(--title-color)] dark:text-[var(--title-color)]",
     amber:  "bg-amber-50  dark:bg-amber-900/20  text-amber-700  dark:text-amber-300",
     blue:   "bg-blue-50   dark:bg-blue-900/20   text-blue-700   dark:text-blue-300",
     green:  "bg-green-50  dark:bg-green-900/20  text-green-700  dark:text-green-300",
@@ -47,22 +40,22 @@ function StatBadge({ icon: Icon, label, value, color = "violet" }) {
 function CommitCard({ commit }) {
   return (
     <a href={commit.url} target="_blank" rel="noopener noreferrer"
-      className="flex items-start gap-3 p-3 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-800/50 transition group">
-      <div className="mt-0.5 flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-lg bg-gray-100 dark:bg-gray-800">
-        <FiGitCommit size={13} className="text-gray-500 dark:text-gray-400" />
+      className="flex items-start gap-3 p-3 rounded-md hover:bg-[var(--surface-muted)] dark:hover:bg-[var(--hover-bg)]/50 transition group">
+      <div className="mt-0.5 flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-lg bg-[var(--hover-bg)] dark:bg-gray-800">
+        <FiGitCommit size={13} className="text-[var(--subtitle-color)] dark:text-[var(--muted-color)]" />
       </div>
       <div className="min-w-0 flex-1">
-        <p className="text-sm font-medium text-gray-800 dark:text-gray-200 truncate group-hover:text-violet-600 dark:group-hover:text-violet-400 transition">
+        <p className="text-sm font-medium text-[var(--title-color)] dark:text-gray-200 truncate group-hover:text-[var(--title-color)] dark:group-hover:text-[var(--title-color)] transition">
           {commit.message}
         </p>
-        <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
-          <span className="font-medium text-gray-700 dark:text-gray-300">{commit.author}</span>
+        <p className="text-xs text-[var(--subtitle-color)] dark:text-[var(--muted-color)] mt-0.5">
+          <span className="font-medium text-[var(--title-color)] dark:text-[var(--muted-color)]">{commit.author}</span>
           {" · "}
-          <code className="bg-gray-100 dark:bg-gray-800 px-1 rounded text-[11px]">{commit.sha}</code>
+          <code className="bg-[var(--hover-bg)] dark:bg-gray-800 px-1 rounded text-[11px]">{commit.sha}</code>
           {" · "}{timeAgo(commit.date)}
         </p>
       </div>
-      <FiExternalLink size={13} className="flex-shrink-0 opacity-0 group-hover:opacity-100 text-violet-500 mt-1 transition" />
+      <FiExternalLink size={13} className="flex-shrink-0 opacity-0 group-hover:opacity-100 text-[var(--title-color)] mt-1 transition" />
     </a>
   );
 }
@@ -70,16 +63,16 @@ function CommitCard({ commit }) {
 function ContributorCard({ contributor }) {
   return (
     <a href={contributor.url} target="_blank" rel="noopener noreferrer"
-      className="flex items-center gap-3 p-3 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-800/50 transition group">
+      className="flex items-center gap-3 p-3 rounded-md hover:bg-[var(--surface-muted)] dark:hover:bg-[var(--hover-bg)]/50 transition group">
       <img src={contributor.avatar} alt={contributor.login}
-        className="h-9 w-9 rounded-full border-2 border-white dark:border-gray-700 shadow-sm" />
+        className="h-9 w-9 rounded-full border-2 border-white dark:border-gray-700 " />
       <div className="min-w-0 flex-1">
-        <p className="text-sm font-semibold text-gray-800 dark:text-gray-200 group-hover:text-violet-600 dark:group-hover:text-violet-400 transition">
+        <p className="text-sm font-semibold text-[var(--title-color)] dark:text-gray-200 group-hover:text-[var(--title-color)] dark:group-hover:text-[var(--title-color)] transition">
           {contributor.login}
         </p>
-        <p className="text-xs text-gray-500 dark:text-gray-400">{contributor.contributions} commits</p>
+        <p className="text-xs text-[var(--subtitle-color)] dark:text-[var(--muted-color)]">{contributor.contributions} commits</p>
       </div>
-      <div className="flex-shrink-0 text-xs font-bold text-violet-600 dark:text-violet-400 bg-violet-50 dark:bg-violet-900/20 px-2 py-0.5 rounded-full">
+      <div className="flex-shrink-0 text-xs font-bold text-[var(--title-color)] dark:text-[var(--title-color)] bg-[var(--surface-muted)] dark:bg-[var(--hover-bg)] px-2 py-0.5 rounded-full">
         #{contributor.contributions}
       </div>
     </a>
@@ -89,10 +82,10 @@ function ContributorCard({ contributor }) {
 function IssueCard({ issue }) {
   return (
     <a href={issue.url} target="_blank" rel="noopener noreferrer"
-      className="flex items-start gap-3 p-3 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-800/50 transition group">
+      className="flex items-start gap-3 p-3 rounded-md hover:bg-[var(--surface-muted)] dark:hover:bg-[var(--hover-bg)]/50 transition group">
       <FiAlertCircle size={16} className="mt-0.5 flex-shrink-0 text-green-500" />
       <div className="min-w-0 flex-1">
-        <p className="text-sm font-medium text-gray-800 dark:text-gray-200 group-hover:text-violet-600 dark:group-hover:text-violet-400 transition">
+        <p className="text-sm font-medium text-[var(--title-color)] dark:text-gray-200 group-hover:text-[var(--title-color)] dark:group-hover:text-[var(--title-color)] transition">
           #{issue.number} {issue.title}
         </p>
         <div className="flex flex-wrap items-center gap-1.5 mt-1">
@@ -103,14 +96,14 @@ function IssueCard({ issue }) {
               {l.name}
             </span>
           ))}
-          <span className="text-xs text-gray-500 dark:text-gray-400">by {issue.author} · {timeAgo(issue.createdAt)}</span>
+          <span className="text-xs text-[var(--subtitle-color)] dark:text-[var(--muted-color)]">by {issue.author} · {timeAgo(issue.createdAt)}</span>
         </div>
       </div>
     </a>
   );
 }
 
-// ─── Link Repo Modal ────────────────────────────────────────────────────────────
+// Section
 function LinkRepoModal({ projects, onClose, onSave }) {
   const [projectId, setProjectId] = useState("");
   const [url, setUrl] = useState("");
@@ -131,26 +124,26 @@ function LinkRepoModal({ projects, onClose, onSave }) {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
-      <div className="w-full max-w-md rounded-2xl bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 shadow-2xl p-6">
+      <div className="w-full max-w-md rounded-lg bg-[var(--surface-card)] dark:bg-gray-900 border border-[var(--border-color)] dark:border-gray-700  p-6">
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-2">
-            <FiLink size={18} className="text-violet-600" />
-            <h3 className="text-lg font-bold text-gray-900 dark:text-white">Link GitHub Repository</h3>
+            <FiLink size={18} className="text-[var(--title-color)]" />
+            <h3 className="text-lg font-bold text-[var(--title-color)] dark:text-[var(--title-color)]">Link GitHub Repository</h3>
           </div>
-          <button onClick={onClose} className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition">
+          <button onClick={onClose} className="text-[var(--muted-color)] hover:text-[var(--subtitle-color)] dark:hover:text-gray-200 transition">
             <FiX size={20} />
           </button>
         </div>
         {error && (
-          <div className="mb-4 p-3 rounded-xl bg-red-50 dark:bg-red-900/20 text-sm text-red-600 dark:text-red-400">
+          <div className="mb-4 p-3 rounded-md bg-red-50 dark:bg-red-900/20 text-sm text-red-600 dark:text-red-400">
             {error}
           </div>
         )}
         <div className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Project</label>
+            <label className="block text-sm font-medium text-[var(--title-color)] dark:text-[var(--muted-color)] mb-1">Project</label>
             <select value={projectId} onChange={e => setProjectId(e.target.value)}
-              className="w-full rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-4 py-2.5 text-sm text-gray-900 dark:text-white outline-none focus:border-violet-500 focus:ring-1 focus:ring-violet-500">
+              className="w-full rounded-md border border-[var(--border-color)] dark:border-gray-700 bg-[var(--surface-card)] dark:bg-gray-800 px-4 py-2.5 text-sm text-[var(--title-color)] dark:text-[var(--title-color)] outline-none focus:border-[var(--title-color)] focus:ring-1 focus:ring-gray-300">
               <option value="">Select a project...</option>
               {projects.map(p => (
                 <option key={p._id} value={p._id}>{p.projectName}</option>
@@ -158,19 +151,19 @@ function LinkRepoModal({ projects, onClose, onSave }) {
             </select>
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">GitHub Repository URL</label>
+            <label className="block text-sm font-medium text-[var(--title-color)] dark:text-[var(--muted-color)] mb-1">GitHub Repository URL</label>
             <input type="url" placeholder="https://github.com/owner/repo" value={url}
               onChange={e => setUrl(e.target.value)}
-              className="w-full rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-4 py-2.5 text-sm text-gray-900 dark:text-white placeholder-gray-400 outline-none focus:border-violet-500 focus:ring-1 focus:ring-violet-500" />
+              className="w-full rounded-md border border-[var(--border-color)] dark:border-gray-700 bg-[var(--surface-card)] dark:bg-gray-800 px-4 py-2.5 text-sm text-[var(--title-color)] dark:text-[var(--title-color)] placeholder-gray-400 outline-none focus:border-[var(--title-color)] focus:ring-1 focus:ring-gray-300" />
           </div>
         </div>
         <div className="flex gap-3 mt-6">
           <button onClick={onClose}
-            className="flex-1 rounded-xl border border-gray-200 dark:border-gray-700 py-2.5 text-sm font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition">
+            className="flex-1 rounded-md border border-[var(--border-color)] dark:border-gray-700 py-2.5 text-sm font-medium text-[var(--subtitle-color)] dark:text-[var(--muted-color)] hover:bg-[var(--surface-muted)] dark:hover:bg-[var(--hover-bg)] transition">
             Cancel
           </button>
           <button onClick={handleSave} disabled={saving}
-            className="flex-1 flex items-center justify-center gap-2 rounded-xl bg-violet-600 py-2.5 text-sm font-semibold text-white hover:bg-violet-700 transition disabled:opacity-70">
+            className="flex-1 flex items-center justify-center gap-2 rounded-md bg-[var(--accent)] py-2.5 text-sm font-semibold text-[var(--accent-contrast)] hover:bg-[var(--accent-hover)] transition disabled:opacity-70">
             {saving ? <FiRefreshCw size={14} className="animate-spin" /> : <FiCheck size={14} />}
             {saving ? "Saving..." : "Link Repository"}
           </button>
@@ -180,7 +173,7 @@ function LinkRepoModal({ projects, onClose, onSave }) {
   );
 }
 
-// ─── Main Page ──────────────────────────────────────────────────────────────────
+// Section
 export default function GitHubPage() {
   const [linkedProjects, setLinkedProjects] = useState([]);
   const [allProjects, setAllProjects] = useState([]);
@@ -196,12 +189,12 @@ export default function GitHubPage() {
     getAllProjects().then(r => setAllProjects(r.data.data)).catch(console.error);
   }, []);
 
-  const loadLinkedProjects = async () => {
+  async function loadLinkedProjects() {
     try {
       const res = await getLinkedProjects();
       setLinkedProjects(res.data.data);
     } catch (e) { console.error(e); }
-  };
+  }
 
   const handleSelectProject = async (project) => {
     setSelectedProject(project);
@@ -233,7 +226,7 @@ export default function GitHubPage() {
   ];
 
   return (
-    <div className="min-h-full bg-gray-50 dark:bg-gray-950 transition-colors duration-200">
+    <div className="min-h-full bg-[var(--main-bg)] transition-colors duration-200">
       {showModal && (
         <LinkRepoModal
           projects={allProjects}
@@ -243,19 +236,19 @@ export default function GitHubPage() {
       )}
 
       {/* Header */}
-      <div className="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 px-8 py-6">
+      <div className="bg-[var(--surface-card)] dark:bg-gray-900 border-b border-[var(--border-color)] dark:border-gray-800 px-8 py-6">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gray-900 dark:bg-gray-100">
-              <FiGithub size={20} className="text-white dark:text-gray-900" />
+            <div className="flex h-10 w-10 items-center justify-center rounded-md bg-[var(--icon-bg)]">
+              <FiGithub size={20} className="text-[var(--icon-contrast)]" />
             </div>
             <div>
-              <h1 className="text-2xl font-bold text-gray-900 dark:text-white">GitHub Integration</h1>
-              <p className="text-sm text-gray-500 dark:text-gray-400">View repositories, commits, contributors & issues</p>
+              <h1 className="text-2xl font-bold text-[var(--title-color)] dark:text-[var(--title-color)]">GitHub Integration</h1>
+              <p className="text-sm text-[var(--subtitle-color)] dark:text-[var(--muted-color)]">View repositories, commits, contributors & issues</p>
             </div>
           </div>
           <button onClick={() => setShowModal(true)}
-            className="flex items-center gap-2 rounded-xl bg-violet-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-violet-700 transition shadow-sm">
+            className="flex items-center gap-2 rounded-md bg-[var(--accent)] px-4 py-2.5 text-sm font-semibold text-[var(--accent-contrast)] hover:bg-[var(--accent-hover)] transition ">
             <FiLink size={15} />
             Link Repository
           </button>
@@ -263,17 +256,17 @@ export default function GitHubPage() {
       </div>
 
       <div className="p-8 flex gap-6">
-        {/* Sidebar — Project List */}
+        {/* Sidebar - Project List */}
         <div className="w-72 flex-shrink-0 space-y-2">
-          <p className="px-1 text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wide mb-3">
+          <p className="px-1 text-xs font-semibold text-[var(--muted-color)] dark:text-[var(--subtitle-color)] uppercase tracking-wide mb-3">
             Linked Repositories ({linkedProjects.length})
           </p>
           {linkedProjects.length === 0 ? (
-            <div className="flex flex-col items-center justify-center p-8 rounded-2xl border border-dashed border-gray-300 dark:border-gray-700 text-center">
-              <FiGithub size={28} className="text-gray-300 dark:text-gray-600 mb-3" />
-              <p className="text-sm text-gray-500 dark:text-gray-400">No repositories linked yet.</p>
+            <div className="flex flex-col items-center justify-center p-8 rounded-lg border border-dashed border-[var(--border-color)] dark:border-gray-700 text-center">
+              <FiGithub size={28} className="text-[var(--muted-color)] dark:text-[var(--subtitle-color)] mb-3" />
+              <p className="text-sm text-[var(--subtitle-color)] dark:text-[var(--muted-color)]">No repositories linked yet.</p>
               <button onClick={() => setShowModal(true)}
-                className="mt-3 text-xs text-violet-600 dark:text-violet-400 hover:underline font-medium">
+                className="mt-3 text-xs text-[var(--title-color)] dark:text-[var(--title-color)] hover:underline font-medium">
                 + Link a repository
               </button>
             </div>
@@ -282,22 +275,22 @@ export default function GitHubPage() {
               const isActive = selectedProject?._id === project._id;
               return (
                 <button key={project._id} onClick={() => handleSelectProject(project)}
-                  className={`w-full text-left p-4 rounded-xl border transition ${
+                  className={`w-full text-left p-4 rounded-md border transition ${
                     isActive
-                      ? "border-violet-300 dark:border-violet-700 bg-violet-50 dark:bg-violet-900/20 shadow-sm"
-                      : "border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 hover:border-gray-300 dark:hover:border-gray-700"
+                      ? "border-[var(--border-color)] dark:border-[var(--border-color)] bg-[var(--surface-muted)] dark:bg-[var(--hover-bg)] "
+                      : "border-[var(--border-color)] dark:border-gray-800 bg-[var(--surface-card)] dark:bg-gray-900 hover:border-[var(--border-color)] dark:hover:border-gray-700"
                   }`}>
                   <div className="flex items-center gap-2 mb-1">
-                    <FiGithub size={14} className={isActive ? "text-violet-600 dark:text-violet-400" : "text-gray-400"} />
-                    <p className={`text-sm font-semibold truncate ${isActive ? "text-violet-700 dark:text-violet-300" : "text-gray-800 dark:text-gray-200"}`}>
+                    <FiGithub size={14} className={isActive ? "text-[var(--title-color)] dark:text-[var(--title-color)]" : "text-[var(--muted-color)]"} />
+                    <p className={`text-sm font-semibold truncate ${isActive ? "text-[var(--title-color)] dark:text-[var(--title-color)]" : "text-[var(--title-color)] dark:text-gray-200"}`}>
                       {project.projectName}
                     </p>
                   </div>
-                  <p className="text-xs text-gray-400 dark:text-gray-500 truncate">{project.githubRepo?.replace("https://github.com/", "")}</p>
+                  <p className="text-xs text-[var(--muted-color)] dark:text-[var(--subtitle-color)] truncate">{project.githubRepo?.replace("https://github.com/", "")}</p>
                   <span className={`mt-2 inline-block text-[10px] font-medium px-2 py-0.5 rounded-full ${
                     project.status === "Active" ? "bg-green-100 dark:bg-green-900/20 text-green-700 dark:text-green-400" :
                     project.status === "Completed" ? "bg-blue-100 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400" :
-                    "bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400"
+                    "bg-[var(--hover-bg)] dark:bg-gray-800 text-[var(--subtitle-color)] dark:text-[var(--muted-color)]"
                   }`}>{project.status}</span>
                 </button>
               );
@@ -308,46 +301,46 @@ export default function GitHubPage() {
         {/* Main content */}
         <div className="flex-1 min-w-0">
           {!selectedProject && (
-            <div className="flex flex-col items-center justify-center h-80 rounded-2xl border border-dashed border-gray-300 dark:border-gray-700 text-center">
-              <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-gray-100 dark:bg-gray-800 mb-4">
-                <FiBookOpen size={28} className="text-gray-400 dark:text-gray-500" />
+            <div className="flex flex-col items-center justify-center h-80 rounded-lg border border-dashed border-[var(--border-color)] dark:border-gray-700 text-center">
+              <div className="flex h-16 w-16 items-center justify-center rounded-lg bg-[var(--hover-bg)] dark:bg-gray-800 mb-4">
+                <FiBookOpen size={28} className="text-[var(--muted-color)] dark:text-[var(--subtitle-color)]" />
               </div>
-              <p className="text-lg font-semibold text-gray-700 dark:text-gray-300">Select a repository</p>
-              <p className="text-sm text-gray-400 dark:text-gray-500 mt-1">Choose a linked project to view GitHub data</p>
+              <p className="text-lg font-semibold text-[var(--title-color)] dark:text-[var(--muted-color)]">Select a repository</p>
+              <p className="text-sm text-[var(--muted-color)] dark:text-[var(--subtitle-color)] mt-1">Choose a linked project to view GitHub data</p>
             </div>
           )}
 
           {selectedProject && loading && (
             <div className="flex flex-col items-center justify-center h-80">
-              <FiRefreshCw size={28} className="text-violet-500 animate-spin mb-3" />
-              <p className="text-sm text-gray-500 dark:text-gray-400">Fetching repository data...</p>
+              <FiRefreshCw size={28} className="text-[var(--title-color)] animate-spin mb-3" />
+              <p className="text-sm text-[var(--subtitle-color)] dark:text-[var(--muted-color)]">Fetching repository data...</p>
             </div>
           )}
 
           {selectedProject && fetchError && !loading && (
-            <div className="flex flex-col items-center justify-center h-80 rounded-2xl border border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-900/10">
+            <div className="flex flex-col items-center justify-center h-80 rounded-lg border border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-900/10">
               <FiAlertCircle size={28} className="text-red-400 mb-3" />
               <p className="text-sm font-medium text-red-600 dark:text-red-400">{fetchError}</p>
-              <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">The repository may be private or the URL may be incorrect.</p>
+              <p className="text-xs text-[var(--subtitle-color)] dark:text-[var(--muted-color)] mt-1">The repository may be private or the URL may be incorrect.</p>
             </div>
           )}
 
           {selectedProject && repoData && !loading && (
             <div className="space-y-6">
               {/* Repo Header Card */}
-              <div className="rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-6">
+              <div className="rounded-lg border border-[var(--border-color)] dark:border-gray-800 bg-[var(--surface-card)] dark:bg-gray-900 p-6">
                 <div className="flex items-start justify-between flex-wrap gap-4">
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-1">
-                      <FiGithub size={18} className="text-gray-700 dark:text-gray-300 flex-shrink-0" />
+                      <FiGithub size={18} className="text-[var(--title-color)] dark:text-[var(--muted-color)] flex-shrink-0" />
                       <a href={repoData.repo.url} target="_blank" rel="noopener noreferrer"
-                        className="text-xl font-bold text-gray-900 dark:text-white hover:text-violet-600 dark:hover:text-violet-400 transition flex items-center gap-1.5">
+                        className="text-xl font-bold text-[var(--title-color)] dark:text-[var(--title-color)] hover:text-[var(--title-color)] dark:hover:text-[var(--title-color)] transition flex items-center gap-1.5">
                         {repoData.repo.name}
                         <FiExternalLink size={14} />
                       </a>
                     </div>
                     {repoData.repo.description && (
-                      <p className="text-sm text-gray-500 dark:text-gray-400 mb-3 ml-6">{repoData.repo.description}</p>
+                      <p className="text-sm text-[var(--subtitle-color)] dark:text-[var(--muted-color)] mb-3 ml-6">{repoData.repo.description}</p>
                     )}
                     <div className="flex flex-wrap gap-1.5 ml-6 mb-3">
                       {repoData.repo.topics.map(t => (
@@ -362,17 +355,17 @@ export default function GitHubPage() {
                           color="blue" />
                       )}
                       <StatBadge icon={FiStar} label="stars" value={repoData.repo.stars} color="amber" />
-                      <StatBadge icon={FiGitBranch} label="forks" value={repoData.repo.forks} color="violet" />
+                      <StatBadge icon={FiGitBranch} label="forks" value={repoData.repo.forks} color="neutral" />
                       <StatBadge icon={FiEye} label="watchers" value={repoData.repo.watchers} color="blue" />
                       <StatBadge icon={FiAlertCircle} label="open issues" value={repoData.repo.openIssues} color="red" />
                     </div>
                   </div>
                   <div className="flex items-center gap-2 flex-shrink-0">
-                    <span className="flex items-center gap-1.5 text-xs text-gray-400 dark:text-gray-500">
+                    <span className="flex items-center gap-1.5 text-xs text-[var(--muted-color)] dark:text-[var(--subtitle-color)]">
                       <FiClock size={12} /> Updated {timeAgo(repoData.repo.updatedAt)}
                     </span>
                     <button onClick={handleRefresh}
-                      className="flex items-center gap-1.5 text-xs text-gray-500 dark:text-gray-400 hover:text-violet-600 dark:hover:text-violet-400 transition border border-gray-200 dark:border-gray-700 rounded-lg px-3 py-1.5">
+                      className="flex items-center gap-1.5 text-xs text-[var(--subtitle-color)] dark:text-[var(--muted-color)] hover:text-[var(--title-color)] dark:hover:text-[var(--title-color)] transition border border-[var(--border-color)] dark:border-gray-700 rounded-lg px-3 py-1.5">
                       <FiRefreshCw size={12} />
                       Refresh
                     </button>
@@ -381,19 +374,19 @@ export default function GitHubPage() {
               </div>
 
               {/* Tabs */}
-              <div className="flex gap-1 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl p-1 w-fit">
+              <div className="flex gap-1 bg-[var(--surface-card)] dark:bg-gray-900 border border-[var(--border-color)] dark:border-gray-800 rounded-md p-1 w-fit">
                 {tabs.map(tab => (
                   <button key={tab.id} onClick={() => setActiveTab(tab.id)}
                     className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition ${
                       activeTab === tab.id
-                        ? "bg-violet-600 text-white shadow-sm"
-                        : "text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800"
+                        ? "bg-[var(--accent)] text-[var(--accent-contrast)] "
+                        : "text-[var(--subtitle-color)] dark:text-[var(--muted-color)] hover:bg-[var(--hover-bg)] dark:hover:bg-[var(--hover-bg)]"
                     }`}>
                     <tab.icon size={14} />
                     {tab.label}
                     {tab.count !== undefined && (
                       <span className={`text-xs px-1.5 py-0.5 rounded-full ${
-                        activeTab === tab.id ? "bg-white/20" : "bg-gray-100 dark:bg-gray-800"
+                        activeTab === tab.id ? "bg-[var(--surface-card)]/20" : "bg-[var(--hover-bg)] dark:bg-gray-800"
                       }`}>{tab.count}</span>
                     )}
                   </button>
@@ -401,47 +394,47 @@ export default function GitHubPage() {
               </div>
 
               {/* Tab Content */}
-              <div className="rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 overflow-hidden">
+              <div className="rounded-lg border border-[var(--border-color)] dark:border-gray-800 bg-[var(--surface-card)] dark:bg-gray-900 overflow-hidden">
                 {activeTab === "commits" && (
                   <div>
-                    <div className="px-6 py-4 border-b border-gray-100 dark:border-gray-800">
-                      <h3 className="font-semibold text-gray-900 dark:text-white flex items-center gap-2">
+                    <div className="px-6 py-4 border-b border-[var(--border-color)] dark:border-gray-800">
+                      <h3 className="font-semibold text-[var(--title-color)] dark:text-[var(--title-color)] flex items-center gap-2">
                         <FiGitCommit size={16} /> Recent Commits
                       </h3>
                     </div>
-                    <div className="divide-y divide-gray-50 dark:divide-gray-800 px-3 py-2">
+                    <div className="divide-y divide-[var(--border-color)] dark:divide-gray-800 px-3 py-2">
                       {repoData.commits.length === 0 ? (
-                        <p className="p-4 text-sm text-gray-400 dark:text-gray-500 text-center">No commits found.</p>
+                        <p className="p-4 text-sm text-[var(--muted-color)] dark:text-[var(--subtitle-color)] text-center">No commits found.</p>
                       ) : repoData.commits.map(c => <CommitCard key={c.sha} commit={c} />)}
                     </div>
                   </div>
                 )}
                 {activeTab === "contributors" && (
                   <div>
-                    <div className="px-6 py-4 border-b border-gray-100 dark:border-gray-800">
-                      <h3 className="font-semibold text-gray-900 dark:text-white flex items-center gap-2">
+                    <div className="px-6 py-4 border-b border-[var(--border-color)] dark:border-gray-800">
+                      <h3 className="font-semibold text-[var(--title-color)] dark:text-[var(--title-color)] flex items-center gap-2">
                         <FiUsers size={16} /> Top Contributors
                       </h3>
                     </div>
-                    <div className="divide-y divide-gray-50 dark:divide-gray-800 px-3 py-2">
+                    <div className="divide-y divide-[var(--border-color)] dark:divide-gray-800 px-3 py-2">
                       {repoData.contributors.length === 0 ? (
-                        <p className="p-4 text-sm text-gray-400 dark:text-gray-500 text-center">No contributor data available.</p>
+                        <p className="p-4 text-sm text-[var(--muted-color)] dark:text-[var(--subtitle-color)] text-center">No contributor data available.</p>
                       ) : repoData.contributors.map(c => <ContributorCard key={c.login} contributor={c} />)}
                     </div>
                   </div>
                 )}
                 {activeTab === "issues" && (
                   <div>
-                    <div className="px-6 py-4 border-b border-gray-100 dark:border-gray-800">
-                      <h3 className="font-semibold text-gray-900 dark:text-white flex items-center gap-2">
+                    <div className="px-6 py-4 border-b border-[var(--border-color)] dark:border-gray-800">
+                      <h3 className="font-semibold text-[var(--title-color)] dark:text-[var(--title-color)] flex items-center gap-2">
                         <FiAlertCircle size={16} /> Open Issues
                       </h3>
                     </div>
-                    <div className="divide-y divide-gray-50 dark:divide-gray-800 px-3 py-2">
+                    <div className="divide-y divide-[var(--border-color)] dark:divide-gray-800 px-3 py-2">
                       {repoData.issues.length === 0 ? (
                         <div className="flex flex-col items-center justify-center py-10 text-center">
                           <FiCheck size={24} className="text-green-400 mb-2" />
-                          <p className="text-sm text-gray-500 dark:text-gray-400">No open issues — great job!</p>
+                          <p className="text-sm text-[var(--subtitle-color)] dark:text-[var(--muted-color)]">No open issues - great job!</p>
                         </div>
                       ) : repoData.issues.map(i => <IssueCard key={i.number} issue={i} />)}
                     </div>
@@ -455,3 +448,10 @@ export default function GitHubPage() {
     </div>
   );
 }
+
+
+
+
+
+
+

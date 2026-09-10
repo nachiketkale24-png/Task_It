@@ -1,4 +1,4 @@
-import { useState } from "react";
+﻿import { useState } from "react";
 import { FiEye, FiEyeOff } from "react-icons/fi";
 
 export default function Input({
@@ -20,7 +20,7 @@ export default function Input({
   return (
     <div className="flex flex-col gap-2">
 
-      <label className="text-sm font-medium text-gray-700">
+      <label className="ui-label">
         {label}
       </label>
 
@@ -32,11 +32,11 @@ export default function Input({
           placeholder={placeholder}
           value={value}
           onChange={onChange}
-          className={`w-full rounded-xl border bg-white text-gray-900 placeholder:text-gray-400 px-4 py-3 pr-12 outline-none transition-all duration-200
+          className={`ui-input pr-12
           ${
             error
-              ? "border-red-500 focus:ring-2 focus:ring-red-200"
-              : "border-gray-300 focus:border-gray-900 focus:ring-2 focus:ring-gray-200"
+              ? "!border-red-500 focus:!ring-red-200"
+              : ""
           }`}
         />
 
@@ -44,7 +44,7 @@ export default function Input({
           <button
             type="button"
             onClick={() => setShowPassword(!showPassword)}
-            className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-800"
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--subtitle-color)] hover:text-[var(--title-color)]"
           >
             {showPassword ? <FiEyeOff /> : <FiEye />}
           </button>
@@ -61,3 +61,9 @@ export default function Input({
     </div>
   );
 }
+
+
+
+
+
+

@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+﻿import { useCallback, useEffect, useState } from "react";
 import { FiPlus, FiRefreshCw, FiUsers } from "react-icons/fi";
 
 import { getTeams } from "../../services/teamService";
@@ -47,13 +47,13 @@ export default function TeamList() {
 
     if (loading) {
         return (
-            <div className="p-8">
+            <div className="app-page">
                 <div className="h-9 w-40 animate-pulse rounded-lg bg-gray-200" />
                 <div className="mt-8 grid gap-5 md:grid-cols-2 xl:grid-cols-3">
                     {[1, 2, 3].map((item) => (
                         <div
                             key={item}
-                            className="h-44 animate-pulse rounded-xl border border-gray-200 bg-white"
+                            className="h-44 animate-pulse rounded-md border border-[var(--border-color)] bg-[var(--surface-card)]"
                         />
                     ))}
                 </div>
@@ -62,25 +62,25 @@ export default function TeamList() {
     }
 
     return (
-        <div className="p-8">
-            <div className="mb-8 flex flex-col gap-5 border-b border-gray-200 pb-6 lg:flex-row lg:items-end lg:justify-between">
+        <div className="app-page">
+            <div className="mb-8 flex flex-col gap-5 border-b border-[var(--border-color)] pb-6 lg:flex-row lg:items-end lg:justify-between">
                 <div>
-                    <p className="text-sm font-medium text-gray-500">
+                    <p className="text-sm font-medium text-[var(--subtitle-color)]">
                         Workspace
                     </p>
 
-                    <h1 className="mt-1 text-3xl font-bold text-gray-900">
+                    <h1 className="mt-1 text-3xl font-bold text-[var(--title-color)]">
                         Teams
                     </h1>
 
-                    <p className="mt-2 text-gray-500">
+                    <p className="mt-2 text-[var(--subtitle-color)]">
                         Create, open, and manage your collaboration spaces.
                     </p>
                 </div>
 
                 <div className="flex flex-wrap items-center gap-3">
-                    <div className="flex items-center gap-3 rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm text-gray-600">
-                        <FiUsers className="text-gray-400" />
+                    <div className="flex items-center gap-3 rounded-md border border-[var(--border-color)] bg-[var(--surface-card)] px-4 py-3 text-sm text-[var(--subtitle-color)]">
+                        <FiUsers className="text-[var(--muted-color)]" />
                         <span>
                             {teams.length} teams
                         </span>
@@ -93,7 +93,7 @@ export default function TeamList() {
                     <button
                         onClick={handleRefresh}
                         disabled={refreshing}
-                        className="inline-flex items-center gap-2 rounded-xl border border-gray-300 bg-white px-4 py-3 text-gray-700 hover:bg-gray-100 disabled:opacity-60"
+                        className="inline-flex items-center gap-2 rounded-md border border-[var(--border-color)] bg-[var(--surface-card)] px-4 py-3 text-[var(--title-color)] hover:bg-[var(--hover-bg)] disabled:opacity-60"
                         title="Refresh teams"
                     >
                         <FiRefreshCw
@@ -104,7 +104,7 @@ export default function TeamList() {
 
                     <button
                         onClick={() => setShowModal(true)}
-                        className="inline-flex items-center gap-2 rounded-xl bg-black px-5 py-3 text-white hover:bg-gray-800"
+                        className="inline-flex items-center gap-2 rounded-md bg-[var(--accent)] px-5 py-3 text-[var(--accent-contrast)] hover:bg-[var(--accent-hover)]"
                     >
                         <FiPlus />
                         New Team
@@ -113,7 +113,7 @@ export default function TeamList() {
             </div>
 
             {error && (
-                <div className="mb-6 rounded-xl border border-red-100 bg-red-50 px-4 py-3 text-red-600">
+                <div className="mb-6 rounded-md border border-red-100 bg-red-50 px-4 py-3 text-red-600">
                     {error}
                 </div>
             )}
@@ -143,3 +143,9 @@ export default function TeamList() {
         </div>
     );
 }
+
+
+
+
+
+

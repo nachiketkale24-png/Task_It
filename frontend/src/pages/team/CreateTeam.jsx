@@ -1,4 +1,4 @@
-import { useState } from "react";
+﻿import { useState } from "react";
 import { FiArrowLeft } from "react-icons/fi";
 import { Link, useNavigate } from "react-router-dom";
 
@@ -45,22 +45,22 @@ export default function CreateTeam() {
     };
 
     return (
-        <div className="p-8">
+        <div className="app-page">
             <div className="mx-auto max-w-2xl">
                 <Link
                     to="/teams"
-                    className="mb-6 inline-flex items-center gap-2 text-sm font-medium text-gray-600 hover:text-black"
+                    className="mb-6 inline-flex items-center gap-2 text-sm font-medium text-[var(--subtitle-color)] hover:text-[var(--title-color)]"
                 >
                     <FiArrowLeft />
                     Back to teams
                 </Link>
 
-                <div className="rounded-xl border border-gray-200 bg-white p-8 shadow-sm">
+                <div className="rounded-md border border-[var(--border-color)] bg-[var(--surface-card)] p-8 ">
                     <h1 className="text-3xl font-bold">
                         Create Team
                     </h1>
 
-                    <p className="mt-2 text-gray-500">
+                    <p className="mt-2 text-[var(--subtitle-color)]">
                         Start a workspace for projects, tasks, and members.
                     </p>
 
@@ -78,7 +78,7 @@ export default function CreateTeam() {
                                 value={formData.teamName}
                                 onChange={handleChange}
                                 placeholder="Frontend Team"
-                                className="w-full rounded-xl border border-gray-300 px-4 py-3 outline-none focus:border-black"
+                                className="w-full rounded-md border border-[var(--border-color)] px-4 py-3 outline-none focus:border-[var(--title-color)] focus:ring-2 focus:ring-gray-200"
                             />
                         </div>
 
@@ -93,7 +93,7 @@ export default function CreateTeam() {
                                 value={formData.description}
                                 onChange={handleChange}
                                 placeholder="What does this team work on?"
-                                className="w-full resize-none rounded-xl border border-gray-300 px-4 py-3 outline-none focus:border-black"
+                                className="w-full resize-none rounded-md border border-[var(--border-color)] px-4 py-3 outline-none focus:border-[var(--title-color)] focus:ring-2 focus:ring-gray-200"
                             />
                         </div>
 
@@ -106,7 +106,7 @@ export default function CreateTeam() {
                         <div className="flex justify-end gap-4">
                             <Link
                                 to="/teams"
-                                className="rounded-xl border border-gray-300 px-5 py-3 hover:bg-gray-50"
+                                className="rounded-md border border-[var(--border-color)] px-5 py-3 hover:bg-[var(--surface-muted)]"
                             >
                                 Cancel
                             </Link>
@@ -114,7 +114,7 @@ export default function CreateTeam() {
                             <button
                                 type="submit"
                                 disabled={loading}
-                                className="rounded-xl bg-black px-6 py-3 text-white hover:bg-gray-800 disabled:opacity-60"
+                                className="rounded-md bg-[var(--accent)] px-6 py-3 text-[var(--accent-contrast)] hover:bg-[var(--accent-hover)] disabled:opacity-60"
                             >
                                 {loading ? "Creating..." : "Create Team"}
                             </button>
@@ -125,3 +125,9 @@ export default function CreateTeam() {
         </div>
     );
 }
+
+
+
+
+
+

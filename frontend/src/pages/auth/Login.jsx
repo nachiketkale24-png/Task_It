@@ -1,4 +1,4 @@
-import { useState } from "react";
+﻿import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { FiCheckCircle } from "react-icons/fi";
 
@@ -84,40 +84,40 @@ function Login() {
   };
 
   return (
-    <div className="min-h-screen bg-white flex">
+    <div className="flex min-h-screen bg-[var(--main-bg)] text-[var(--title-color)]">
       {/* LEFT PANEL */}
-      <div className="hidden lg:flex w-1/2 border-r border-gray-200 items-center justify-center px-20">
+      <div className="hidden w-1/2 items-center justify-center border-r border-[var(--border-color)] bg-[var(--sidebar-bg)] px-20 lg:flex">
         <div className="max-w-md">
           <div className="flex items-center gap-3 mb-8">
-            <div className="bg-gray-900 text-white p-3 rounded-xl">
+            <div className="rounded-md bg-[var(--accent)] p-3 text-[var(--accent-contrast)]">
               <FiCheckCircle size={28} />
             </div>
 
-            <h1 className="text-4xl font-bold text-gray-900">
+            <h1 className="text-4xl font-semibold text-[var(--title-color)]">
               Task It
             </h1>
           </div>
 
-          <h2 className="text-5xl font-bold leading-tight text-gray-900">
+          <h2 className="text-5xl font-semibold leading-tight text-[var(--title-color)]">
             Welcome Back.
             <br />
             Let's get productive.
           </h2>
 
-          <p className="mt-6 text-lg text-gray-500 leading-8">
+          <p className="mt-6 text-lg leading-8 text-[var(--subtitle-color)]">
             Continue managing your projects, collaborating with
-            teammates, and tracking your progress—all from one
+            teammates, and tracking your progress - all from one
             place.
           </p>
 
-          <div className="mt-12 border-l-4 border-gray-900 pl-6">
-            <p className="italic text-gray-600">
+          <div className="mt-12 border-l-2 border-[var(--title-color)] pl-6">
+            <p className="italic text-[var(--subtitle-color)]">
               "Success is the sum of small efforts repeated every
               day."
             </p>
 
-            <p className="mt-3 font-medium text-gray-900">
-              — Task It
+            <p className="mt-3 font-medium text-[var(--title-color)]">
+              Task It
             </p>
           </div>
         </div>
@@ -127,11 +127,11 @@ function Login() {
 
       <div className="flex flex-1 items-center justify-center px-8">
         <Card>
-          <h2 className="text-3xl font-bold text-gray-900">
+          <h2 className="text-3xl font-semibold text-[var(--title-color)]">
             Sign In
           </h2>
 
-          <p className="mt-2 text-gray-500">
+          <p className="mt-2 text-[var(--subtitle-color)]">
             Welcome back! Please enter your details.
           </p>
 
@@ -162,7 +162,7 @@ function Login() {
             <div className="flex justify-end">
               <Link
                 to="/forgot-password"
-                className="text-sm text-gray-500 hover:text-gray-900 transition"
+                className="text-sm text-[var(--subtitle-color)] transition hover:text-[var(--title-color)]"
               >
                 Forgot Password?
               </Link>
@@ -173,11 +173,11 @@ function Login() {
             </Button>
           </form>
 
-          <p className="mt-8 text-center text-gray-500">
+          <p className="mt-8 text-center text-[var(--subtitle-color)]">
             Don't have an account?{" "}
             <Link
               to="/register"
-              className="font-semibold text-gray-900 hover:underline"
+              className="font-semibold text-[var(--title-color)] hover:underline"
             >
               Create one
             </Link>
@@ -189,3 +189,9 @@ function Login() {
 }
 
 export default Login;
+
+
+
+
+
+

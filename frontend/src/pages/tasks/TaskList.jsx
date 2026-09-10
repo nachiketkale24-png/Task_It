@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+﻿import { useEffect, useState } from "react";
 import { FiPlus, FiSearch, FiCalendar, FiCheckSquare, FiAlertCircle } from "react-icons/fi";
 import { getTasks, createTask, updateTask, deleteTask, getUsers } from "../../services/taskService";
 import TaskFormModal from "../../components/tasks/TaskFormModal";
@@ -8,7 +8,6 @@ export default function TaskList() {
     const [tasks, setTasks] = useState([]);
     const [users, setUsers] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [error, setError] = useState("");
 
     // Filter states
     const [statusTab, setStatusTab] = useState("Pending");
@@ -29,7 +28,7 @@ export default function TaskList() {
             setTasks(taskRes.data);
             setUsers(userRes.data);
         } catch (err) {
-            setError("Failed to load task dashboard.");
+            console.error("Failed to load task dashboard.", err);
         } finally {
             setLoading(false);
         }
@@ -54,7 +53,7 @@ export default function TaskList() {
             await deleteTask(id);
             setIsDetailsOpen(false);
             await loadData();
-        } catch (err) {
+        } catch {
             alert("Failed to delete task.");
         }
     };
@@ -70,20 +69,20 @@ export default function TaskList() {
     });
 
     return (
-        <div className="p-8">
+        <div className="app-page">
             <div className="mx-auto max-w-6xl">
                 {/* Header */}
-                <div className="flex flex-wrap items-center justify-between gap-4 border-b pb-6">
+                <div className="page-header">
                     <div>
-                        <h1 className="text-3xl font-bold text-gray-900">Workspace Tasks</h1>
-                        <p className="mt-1 text-gray-500">Create, assign, track checklist items, and discuss tasks.</p>
+                        <h1 className="page-title">Workspace Tasks</h1>
+                        <p className="page-description">Create, assign, track checklist items, and discuss tasks.</p>
                     </div>
                     <button
                         onClick={() => {
                             setSelectedTask(null);
                             setIsFormOpen(true);
                         }}
-                        className="inline-flex items-center gap-2 rounded-xl bg-black px-5 py-3 font-semibold text-white hover:bg-gray-800 transition active:scale-[0.98]"
+                        className="ui-button ui-button-primary"
                     >
                         <FiPlus />
                         Add New Task
@@ -93,16 +92,16 @@ export default function TaskList() {
                 {/* Filters Row */}
                 <div className="mt-6 flex flex-wrap items-center justify-between gap-4">
                     {/* Status Tabs */}
-                    <div className="flex gap-1 border-b pb-1">
+                    <div className="flex gap-1 rounded-md border border-[var(--border-color)] bg-[var(--surface-card)] p-1">
                         {["Pending", "In Progress", "Completed"].map((tab) => (
                             <button
                                 key={tab}
                                 onClick={() => setStatusTab(tab)}
-                                className={`rounded-xl px-5 py-2.5 text-sm font-semibold transition
+                                className={`rounded-md px-4 py-2 text-sm font-medium transition
                                 ${
                                     statusTab === tab
-                                        ? "bg-black text-white"
-                                        : "text-gray-500 hover:bg-gray-100"
+                                        ? "bg-[var(--accent)] text-[var(--accent-contrast)]"
+                                        : "text-[var(--subtitle-color)] hover:bg-[var(--hover-bg)]"
                                 }`}
                             >
                                 {tab}
@@ -113,19 +112,19 @@ export default function TaskList() {
                     {/* Search & Priority Selector */}
                     <div className="flex flex-wrap items-center gap-3 w-full sm:w-auto">
                         <div className="relative flex-1 sm:w-64">
-                            <FiSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
+                            <FiSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-[var(--muted-color)]" />
                             <input
                                 type="text"
                                 placeholder="Search tasks..."
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
-                                className="w-full rounded-xl border border-gray-300 bg-white px-10 py-3 text-sm outline-none focus:border-black"
+                                className="w-full rounded-md border border-[var(--border-color)] bg-[var(--surface-card)] px-10 py-3 text-sm outline-none focus:border-[var(--title-color)] focus:ring-2 focus:ring-gray-200"
                             />
                         </div>
                         <select
                             value={priorityFilter}
                             onChange={(e) => setPriorityFilter(e.target.value)}
-                            className="rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm outline-none focus:border-black"
+                            className="rounded-md border border-[var(--border-color)] bg-[var(--surface-card)] px-4 py-3 text-sm outline-none focus:border-[var(--title-color)] focus:ring-2 focus:ring-gray-200"
                         >
                             <option value="All">All Priorities</option>
                             <option value="Low">Low</option>
@@ -137,7 +136,7 @@ export default function TaskList() {
                 </div>
 
                 {loading ? (
-                    <div className="mt-12 text-center text-gray-500 font-medium">Loading Tasks...</div>
+                    <div className="mt-12 text-center text-[var(--subtitle-color)] font-medium">Loading Tasks...</div>
                 ) : (
                     <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                         {filteredTasks.map((t) => {
@@ -148,7 +147,7 @@ export default function TaskList() {
                             return (
                                 <div
                                     key={t._id}
-                                    className="group relative flex flex-col justify-between rounded-2xl border border-gray-200 bg-white p-5 shadow-sm hover:shadow-md transition cursor-pointer"
+                                    className="ui-card ui-card-hover group relative flex cursor-pointer flex-col justify-between p-5"
                                     onClick={() => {
                                         setActiveTaskId(t._id);
                                         setIsDetailsOpen(true);
@@ -157,11 +156,11 @@ export default function TaskList() {
                                     <div>
                                         {/* Badges */}
                                         <div className="flex items-center justify-between">
-                                            <span className={`rounded-full px-2.5 py-1 text-xs font-semibold uppercase
+                                            <span className={`ui-badge uppercase
                                                 ${
-                                                    t.priority === "Critical" ? "bg-red-50 text-red-600" :
-                                                    t.priority === "High" ? "bg-orange-50 text-orange-600" :
-                                                    t.priority === "Medium" ? "bg-blue-50 text-blue-600" : "bg-gray-100 text-gray-600"
+                                                    t.priority === "Critical" ? "badge-danger" :
+                                                    t.priority === "High" ? "badge-warning" :
+                                                    t.priority === "Medium" ? "badge-info" : "badge-neutral"
                                                 }`}
                                             >
                                                 {t.priority}
@@ -173,30 +172,30 @@ export default function TaskList() {
                                                     setSelectedTask(t);
                                                     setIsFormOpen(true);
                                                 }}
-                                                className="text-xs text-gray-400 hover:text-black opacity-0 group-hover:opacity-100 transition"
+                                                className="text-xs text-[var(--muted-color)] hover:text-[var(--title-color)] opacity-0 group-hover:opacity-100 transition"
                                             >
                                                 Edit
                                             </button>
                                         </div>
 
                                         {/* Title */}
-                                        <h3 className="mt-3 text-lg font-bold text-gray-900 line-clamp-1">{t.title}</h3>
-                                        <p className="mt-1 text-sm text-gray-500 line-clamp-2">{t.description || "No description."}</p>
+                                        <h3 className="mt-3 line-clamp-1 text-base font-semibold text-[var(--title-color)]">{t.title}</h3>
+                                        <p className="mt-1 text-sm text-[var(--subtitle-color)] line-clamp-2">{t.description || "No description."}</p>
                                     </div>
 
                                     <div className="mt-6 border-t pt-4">
                                         {/* Subtasks Progress */}
                                         {totalCount > 0 && (
                                             <div className="mb-4">
-                                                <div className="flex justify-between text-xs text-gray-500 mb-1">
+                                                <div className="flex justify-between text-xs text-[var(--subtitle-color)] mb-1">
                                                     <span className="flex items-center gap-1">
                                                         <FiCheckSquare /> Checklist
                                                     </span>
                                                     <span>{completedCount}/{totalCount} ({progressPercent}%)</span>
                                                 </div>
-                                                <div className="h-1.5 w-full rounded-full bg-gray-100 overflow-hidden">
+                                                <div className="h-1.5 w-full rounded-full bg-[var(--hover-bg)] overflow-hidden">
                                                     <div
-                                                        className="h-full bg-black rounded-full transition-all duration-300"
+                                                        className="h-full rounded-full bg-[var(--accent)] transition-all duration-300"
                                                         style={{ width: `${progressPercent}%` }}
                                                     />
                                                 </div>
@@ -204,12 +203,12 @@ export default function TaskList() {
                                         )}
 
                                         {/* Date and Assignee */}
-                                        <div className="flex items-center justify-between text-xs text-gray-500">
+                                        <div className="flex items-center justify-between text-xs text-[var(--subtitle-color)]">
                                             <span className="flex items-center gap-1">
                                                 <FiCalendar /> {t.deadline ? new Date(t.deadline).toLocaleDateString() : "No deadline"}
                                             </span>
 
-                                            <span className="font-semibold text-gray-800 bg-gray-100 rounded-full px-2 py-0.5">
+                                            <span className="font-semibold text-[var(--title-color)] bg-[var(--hover-bg)] rounded-full px-2 py-0.5">
                                                 {t.assignee?.fullName ? t.assignee.fullName.split(" ")[0] : "Unassigned"}
                                             </span>
                                         </div>
@@ -219,10 +218,10 @@ export default function TaskList() {
                         })}
 
                         {filteredTasks.length === 0 && (
-                            <div className="col-span-full mt-8 rounded-2xl border border-dashed border-gray-300 py-16 text-center">
-                                <FiAlertCircle className="mx-auto text-gray-400" size={32} />
-                                <h3 className="mt-4 text-lg font-semibold text-gray-900">No tasks found</h3>
-                                <p className="mt-1 text-gray-500">Try changing status tabs or priority filters.</p>
+                            <div className="col-span-full mt-8 rounded-lg border border-dashed border-[var(--border-color)] py-16 text-center">
+                                <FiAlertCircle className="mx-auto text-[var(--muted-color)]" size={32} />
+                                <h3 className="mt-4 text-lg font-semibold text-[var(--title-color)]">No tasks found</h3>
+                                <p className="mt-1 text-[var(--subtitle-color)]">Try changing status tabs or priority filters.</p>
                             </div>
                         )}
                     </div>
@@ -248,3 +247,9 @@ export default function TaskList() {
         </div>
     );
 }
+
+
+
+
+
+
