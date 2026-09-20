@@ -5,6 +5,7 @@ const validate = require("../middleware/validationMiddleware");
 const {
     registerUser,
     loginUser,
+    firebaseLogin,
     getUsers,
 } = require("../controllers/authController");
 
@@ -26,6 +27,9 @@ router.post(
     validate,
     loginUser
 );
+
+router.post("/google", firebaseLogin);
+
 router.get("/users", protect, requireGlobalRole(["Super Admin"]), getUsers);
 module.exports = router;
 

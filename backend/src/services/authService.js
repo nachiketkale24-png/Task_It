@@ -2,6 +2,7 @@ const bcrypt = require("bcrypt");
 const User = require("../models/User");
 const generateToken = require("../utils/generateToken");
 const { SELF_REGISTRATION_ROLES } = require("../validators/authValidator");
+const { auth } = require("../config/firebaseAdmin");
 
 const authError = (message, statusCode = 400) => {
     const error = new Error(message);
@@ -67,6 +68,59 @@ const loginUser = async (userData) => {
     };
 };
 
+// Firebase Google Login
+const firebaseLogin = async (idToken) => {
+    try {
+        const decodedToken = await auth.verifyIdToken(idToken);
+
+        const { uid, email, name, picture, email_verified } = decodedToken;
+
+        if (!email || !email_verified) {
+            throw authError("Google account email is not verified", 401);
+        }
+
+        let user = await User.findOne({
+            email: email.toLowerCase().trim(),
+        });
+
+        if (!user) {
+            user = await User.create({
+                fullName: name || email.split("@")[0],
+                email: email.toLowerCase().trim(),
+                password: undefined,
+                role: "Intern",
+                profileImage: picture || "",
+                firebaseUid: uid,
+            });
+        } else {
+            if (user.isActive === false) {
+                throw authError("This account is inactive", 403);
+            }
+
+            user.firebaseUid = uid;
+
+            if (picture && !user.profileImage) {
+                user.profileImage = picture;
+            }
+
+            await user.save();
+        }
+
+        const token = generateToken(user._id);
+
+        return {
+            token,
+            user,
+        };
+    } catch (error) {
+        if (error.statusCode) {
+            throw error;
+        }
+
+        throw authError("Invalid Firebase authentication", 401);
+    }
+};
+
 const getAllUsers = async () => {
     return await User.find({}, "fullName email role profileImage");
 };
@@ -75,4 +129,5 @@ module.exports = {
     registerUser,
     loginUser,
     getAllUsers,
+    firebaseLogin,
 };
