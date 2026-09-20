@@ -6,6 +6,7 @@ import Card from "../../components/common/Card";
 import Input from "../../components/common/Input";
 import Button from "../../components/common/Button";
 import api from "../../services/api";
+import { signInWithGoogle } from "../../services/firebaseAuthService";
 
 function Login() {
   const navigate = useNavigate();
@@ -80,6 +81,36 @@ function Login() {
       );
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleGoogleLogin = async () => {
+    try {
+        setLoading(true);
+        setSubmitError("");
+
+        const firebaseUser = await signInWithGoogle();
+        const idToken = await firebaseUser.getIdToken();
+
+        const response = await api.post("/auth/google", {
+            idToken,
+        });
+
+        localStorage.setItem("token", response.data.token);
+        localStorage.setItem(
+            "user",
+            JSON.stringify(response.data.data)
+        );
+
+        navigate("/dashboard");
+    } catch (error) {
+        setSubmitError(
+            error.response?.data?.message ||
+            error.message ||
+            "Google sign-in failed."
+        );
+    } finally {
+        setLoading(false);
     }
   };
 
@@ -177,6 +208,28 @@ function Login() {
             <Button type="submit" disabled={loading}>
               {loading ? "Signing In..." : "Sign In"}
             </Button>
+
+            <div className="relative my-5">
+              <div className="absolute inset-0 flex items-center">
+                <div className="w-full border-t border-[var(--border-color)]" />
+              </div>
+
+            <div className="relative flex justify-center text-sm">
+              <span className="bg-[var(--main-bg)] px-3 text-[var(--subtitle-color)]">
+              OR
+              </span>
+            </div>
+            </div>
+
+            <button
+                type="button"
+                onClick={handleGoogleLogin}
+                disabled={loading}
+                className="w-full rounded-md border border-[var(--border-color)] px-4 py-2.5 font-medium text-[var(--title-color)] transition hover:bg-[var(--sidebar-bg)] disabled:cursor-not-allowed disabled:opacity-50"
+            >
+                {loading ? "Signing In..." : "Continue with Google"}
+            </button>
+            
           </form>
 
           <p className="mt-8 text-center text-[var(--subtitle-color)]">
