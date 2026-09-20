@@ -221,4 +221,4 @@ Frontend will be available at `http://localhost:5173`
 
 ## 📝 License
 
-This project was developed as a **Mini Project** for academic purposes.
+This project was developed as a **Mini Project** for academic purposes  now check.
