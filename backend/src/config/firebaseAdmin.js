@@ -2,13 +2,21 @@ const { initializeApp, cert } = require("firebase-admin/app");
 const { getAuth } = require("firebase-admin/auth");
 const path = require("path");
 
-const serviceAccountPath = process.env.FIREBASE_SERVICE_ACCOUNT_PATH;
+let serviceAccount;
 
-if (!serviceAccountPath) {
-    throw new Error("FIREBASE_SERVICE_ACCOUNT_PATH is not configured");
+if (process.env.FIREBASE_SERVICE_ACCOUNT_PATH) {
+    // Local development
+    serviceAccount = require(
+        path.resolve(process.env.FIREBASE_SERVICE_ACCOUNT_PATH)
+    );
+} else {
+    // Render / production
+    serviceAccount = {
+        projectId: process.env.FIREBASE_PROJECT_ID,
+        clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
+        privateKey: process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, "\n"),
+    };
 }
-
-const serviceAccount = require(path.resolve(serviceAccountPath));
 
 const app = initializeApp({
     credential: cert(serviceAccount),
