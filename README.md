@@ -213,9 +213,9 @@ Frontend will be available at `http://localhost:5173`
 
 | Name | Role |
 |---|---|
-| Shrishti Tapse | Backend Development |
-| Chinmay Karmalkar | Firebase Authentication |
-| Nachiket Kale | Frontend & Deployment |
+| [Shrishti Tapse](https://github.com/shristitapse) | Backend Development |
+| [Chinmay Karmalkar](https://github.com/chinmayhk06) | Firebase Authentication |
+| [Nachiket Kale](https://github.com/nachiketkale24-png) | Frontend & Deployment |
 
 ---
 
